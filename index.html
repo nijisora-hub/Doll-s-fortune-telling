@@ -54,7 +54,7 @@
         }
         @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* 統合ナビゲーション（初期は非表示） */
+        /* 統合ナビゲーション */
         #global-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
             background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);
@@ -63,17 +63,19 @@
         }
         .nav-btn {
             background: transparent; color: var(--doll-gold); border: 1px solid var(--doll-gold);
-            margin: 0 15px; padding: 8px 25px; cursor: pointer; font-family: inherit;
-            font-size: 0.9rem; transition: 0.4s; letter-spacing: 2px;
+            margin: 0 10px; padding: 8px 15px; cursor: pointer; font-family: inherit;
+            font-size: 0.8rem; transition: 0.4s; letter-spacing: 2px;
         }
         .nav-btn:hover, .nav-btn.active {
             background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 20px rgba(230, 180, 34, 0.5);
         }
+        .nav-btn.home-btn { border-color: rgba(230, 180, 34, 0.5); opacity: 0.8; }
 
         /* トップセレクト画面 */
         #top-selector {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box;
+            animation: fadeIn 1s ease;
         }
         .selector-title {
             font-size: 2.2rem; color: var(--doll-gold); letter-spacing: 12px; margin-bottom: 50px;
@@ -194,6 +196,7 @@
 </section>
 
 <nav id="global-nav">
+    <button class="nav-btn home-btn" onclick="backToHome()">TOPに戻る</button>
     <button class="nav-btn" id="btn-tarot" onclick="switchApp('tarot', this)">TAROT</button>
     <button class="nav-btn" id="btn-rune" onclick="switchApp('rune', this)">RUNE</button>
 </nav>
@@ -252,7 +255,7 @@
                 <div id="combined-interpretation" style="color: #cbd5e1; font-weight: bold;"></div>
             </div>
             
-            <button class="rune-btn" onclick="goBack()" style="width: auto; padding: 12px 60px;">戻る</button>
+            <button class="rune-btn" onclick="goBackRune()" style="width: auto; padding: 12px 60px;">戻る</button>
         </div>
     </div>
 </section>
@@ -262,12 +265,27 @@
 <script>
 // --- 統合制御ロジック ---
 
-// 初回起動時の処理
+// 初回起動時
 function initApp(appId) {
     document.getElementById('top-selector').style.display = 'none';
     document.getElementById('global-nav').style.display = 'flex';
     const targetBtn = appId === 'tarot' ? document.getElementById('btn-tarot') : document.getElementById('btn-rune');
     switchApp(appId, targetBtn);
+}
+
+// トップ画面に戻る
+function backToHome() {
+    // コンテンツを非表示
+    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
+    document.getElementById('global-nav').style.display = 'none';
+    document.getElementById('top-selector').style.display = 'flex';
+    
+    // 各占いの状態をリセット
+    document.getElementById('tarot-results').classList.add('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('main-screen').classList.remove('hidden');
+    
+    window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function switchApp(appId, btn) {
@@ -294,9 +312,9 @@ const tarotDeck = [
     { name: "魔術師", sym: "🪄", upMean: "創造、意志、技術、知性。", revMean: "混迷、準備不足、才能の浪費、欺瞞。", longUp: "机の上には、すべての道具が揃っている。\n火、水、風、闘、そして土。\n\nあとはその指先で、どのような物語を紡ぎ出すか決めるだけ。\n魔法とは、決して特別な力ではない。\n対象へ向けられた、純粋な意志そのもの。\n\n深く呼吸をし、いまこの瞬間から、新しい世界を創り始める。\nその鮮やかな手並みを、ここで静かに見守っている。", longRev: "多くの道具を持ちながら、どれも手に馴染まずにいる。\n焦って言葉を唱えても、不揃いな煙が上がるだけ。\n\nいま必要なのは、新しい技術ではない。\n机の上を一度整理し、本当に扱うべきものひとつだけを手に取ること。\n\n基本に立ち返る勇気があれば。\n空回りしていた歯車は、再び静かに回り始める。" },
     { name: "女教皇", sym: "📖", upMean: "静観、知性、直感、神秘、沈黙。", revMean: "神経質、ヒステリック、視野狭窄、現実逃避。", longUp: "少し、静かに。\n外側の喧騒に惑わされ、自身の本当の声を忘れてはいないだろうか。\n\n心の奥底には、まだ誰も踏み込んだことのない深い湖がある。\nその澄んだ水面に映る月を見つめること。\n\n答えは、誰かに問うものではなく、そこにあるものをただ認識するだけでいい。\n沈黙を友とし、自身の直感に重さを預ける。いまは、そんな時間が必要だ。", longRev: "神経が過敏になりすぎている。\n小さな物音にも心が震え、安らぎを失っている。\n\n他者の言葉を深読みし、自らを追い詰めるのはもう終わりにすること。\nいまは思考を閉じ、静寂の中に身を浸す。\n\n知性で解決を試みるのではなく、ただ心を眠らせること。\nそれが、いまのあなたにとって唯一の処方箋となる。" },
     { name: "隠者", sym: "💡", upMean: "内省、真理、静寂、精神的自立。", revMean: "閉鎖的、孤独感、現実拒絶、独りよがり。", longUp: "独りで歩む暗い道も、足元を照らす小さな灯火があれば事足りる。\nいまは外側の喧騒から離れ、内側へと深く潜り、自分だけの真実を見つけ出す時間。\n\n孤独を恐れる必要はない。\n静寂の中でこそ、ようやく聞こえてくる声があるのだから。\n\n暗闇に目が慣れたとき。\nあなたは自身の中に眠る、揺るぎない確信を見つけ出すはずだ。", longRev: "孤独が、あなたを冷たく閉ざしてしまった。\n自身の中に閉じこもりすぎると、他者へと続く扉さえ見失ってしまう。\n\n内に潜ることは、現実から逃げることとは違う。\n暗い部屋で耳を塞ぐのをやめて、少しだけ窓を開けてみること。\n\nあなたが探し求めている光は。\n案外、すぐ外側に降り注いでいるのかもしれない。" },
-    { name: "運命の輪", sym: "🎡", upMean: "幸運、転換点、急展開、チャンスの到来。", revMean: "暗転、不運、空回り、一時的な停滞。", longUp: "風向きが変わった。\n重たい歯車が音を立て、あなたを未知の場所へと運び出そうとしている。\n\nこれは個人の力によるものではなく、世界の理が用意した絶好の好機。\n迷う時間は残されていない。この大きな流れに身を任けること。\n\nやってくる事象を、ただそのまま受け入れる。\nいま、あなたの人生の新しい章が、静かに書き始められた。", longRev: "いまは何を試みても、タイミングが合わない時期。\n焦って空回りする歯車に指を触れれば、深く傷つくだけ。\n\n運命が、少しの休息を求めている。\nこの停滞を無理に動かそうとせず、次に風が吹くのを静かに待つこと。\n\nいまは力を蓄えるとき。\n輪が再び回り始めるその日まで、自らを整えることに専念すべきだ。" },
+    { name: "運命の輪", sym: "🎡", upMean: "幸運、転換点、急展開、チャンスの到来。", revMean: "暗転、不運、空回り、一時的な停滞。", longUp: "風向きが変わった。\n重たい歯車が音を立て、あなたを未知の場所へと運び出そうとしている。\n\nこれは個人の力によるものではなく、世界の理が用意した絶好の好機。\n迷う時間は残されていない。この大きな流れに身を任せること。\n\nやってくる事象を、ただそのまま受け入れる。\nいま、あなたの人生の新しい章が、静かに書き始められた。", longRev: "いまは何を試みても、タイミングが合わない時期。\n焦って空回りする歯車に指を触れれば、深く傷つくだけ。\n\n運命が、少しの休息を求めている。\nこの停滞を無理に動かそうとせず、次に風が吹くのを静かに待つこと。\n\nいまは力を蓄えるとき。\n輪が再び回り始めるその日まで、自らを整えることに専念すべきだ。" },
     { name: "塔", sym: "⚡", upMean: "崩壊、災難、衝撃的な変化、虚飾の打破。", revMean: "緊迫、不時着、再建への兆し、ショックの緩和。", longUp: "積み上げてきた虚像が、一瞬にして崩れ去る。\nそれは真実ではないものを壊すための、慈悲を伴った衝撃。\n\n瓦礫の下から、ようやく本物の土台が姿を現す。\n失ったものを嘆く必要はない。\n\n偽りの平和の中に留まるよりも、裸の心で荒野に立つほうが。\nこれからのあなたを強く、そして自由にする。\n再構築を始めるのは、いま。", longRev: "大きな破綻を、間一髪で逃れている状態。\nあるいは、崩壊の予感に怯えている。\n\n小手先の修理では、もう間に合わない段階に達している。\n無理に形を維持しようとせず、壊れるべきものは壊れるに任せる。\n\nその潔さが、被害を最小限に抑える唯一の手段となる。\n新しい場所へ移るための、痛みを伴う通過儀礼だ。" },
-    { name: "世界", sym: "🌍", upMean: "完成、成功、到達、完璧な調和。", revMean: "未完成、中途半端、スランプ、満足感の欠如。", longUp: "長い旅路が、完璧な円を描いて完結した。\nいまはこれまでの歩みを称え、充足感に包まれていていい。\n\nあなたは、ふさわしい場所にたどり着いた。\n宇宙とあなたが一体になるような、完璧な調和の中にいる。\n\n何も足りないものはないし、何も余計なものはない。\nこの至福の瞬間を、心ゆくまで味わうこと。\nあなたは、ここにいていい。", longRev: "ゴールはすぐ目の前にあるのに、最後の一歩が踏み出せないでいる。\nあとほんの少しだけ、足りないピースがあるようだ。\n\nそれは技術や物ではなく、あなた自身の「納得」かもしれない。\n中途半端なまま、終わらせないで。\n\nもう一度だけ、全体を見渡してみること。\n完璧な調和まであとわずか.妥協せずに、その手で円を閉じてほしい。" }
+    { name: "世界", sym: "🌍", upMean: "完成、成功、到達、完璧な調和。", revMean: "未完成、中途半端、スランプ、満足感の欠如。", longUp: "長い旅路が、完璧な円を描いて完結した。\nいまはこれまでの歩みを称え、充足感に包まれていていい。\n\nあなたは、ふさわしい場所にたどり着いた。\n宇宙とあなたが一体になるような、完璧な調和の中にいる。\n\n何も足りないものはないし、何も余計なものはない。\nこの至福の瞬間を、心ゆくまで味わうこと。\nあなたは、ここにいていい。", longRev: "ゴールはすぐ目の前にあるのに、最後の一歩が踏み出せないでいる。\nあとほんの少しだけ、足りないピースがあるようだ。\n\nそれは技術や物ではなく、あなた自身の「納得」かもしれない。\n中途半端なまま、終わらせないで。\n\nもう一度だけ、全体を見渡してみること。\n完璧な調和まであとわずか。妥協せずに、その手で円を閉じてほしい。" }
 ];
 
 function 占い() {
@@ -383,7 +401,7 @@ function startDivination(mode) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function goBack() {
+function goBackRune() {
     document.getElementById('main-screen').classList.remove('hidden');
     document.getElementById('result-screen').classList.add('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
