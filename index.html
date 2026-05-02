@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doll's fortune telling</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>✡️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>✡️</text></svg>">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap');
+        
+        :root {
+            --doll-gold: #e6b422;
+            --doll-white: #f8f9fa;
+            --doll-navy: #0a1128;
+            --doll-deep: #020408;
+            --text-main: #f8f9fa;
+            --gold-glow: 0 0 40px rgba(230, 180, 34, 0.5);
+            
+            /* タロット用変数 */
+            --nouveau-gold: #c5a059;
+            --nouveau-rose: #9d5b5b;
+            --text-ivory: #e6e2d3;
+            --panel-bg: rgba(26, 24, 22, 0.95);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--doll-deep);
+            color: var(--text-main);
+            font-family: 'Shippori Mincho', "Hiragino Mincho ProN", serif;
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* 共通背景 */
+        .star-field {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at center, var(--doll-navy) 0%, var(--doll-deep) 100%);
+        }
+        .magic-bg-container {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: -1; pointer-events: none;
+        }
+        .magic-circle {
+            width: 900px; height: 900px; border: 1.5px solid var(--doll-gold);
+            border-radius: 50%; box-shadow: var(--gold-glow);
+            animation: rotateCircle 180s linear infinite; position: relative; opacity: 0.7;
+        }
+        .magic-circle::before {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="none" stroke="%23e6b422" stroke-width="0.1"/><path d="M50 0 L93.3 25 L93.3 75 L50 100 L6.7 75 L6.7 25 Z" fill="none" stroke="%23e6b422" stroke-width="0.2"/><circle cx="50" cy="50" r="32" fill="none" stroke="%23e6b422" stroke-width="0.1" stroke-dasharray="2,2"/></svg>') center/contain no-repeat;
+        }
+        @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* 統合ナビゲーション（初期は非表示） */
+        #global-nav {
+            position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000; border-bottom: 1px solid rgba(230, 180, 34, 0.3);
+        }
+        .nav-btn {
+            background: transparent; color: var(--doll-gold); border: 1px solid var(--doll-gold);
+            margin: 0 15px; padding: 8px 25px; cursor: pointer; font-family: inherit;
+            font-size: 0.9rem; transition: 0.4s; letter-spacing: 2px;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 20px rgba(230, 180, 34, 0.5);
+        }
+
+        /* トップセレクト画面 */
+        #top-selector {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box;
+        }
+        .selector-title {
+            font-size: 2.2rem; color: var(--doll-gold); letter-spacing: 12px; margin-bottom: 50px;
+            text-shadow: 0 0 30px rgba(230, 180, 34, 0.8);
+        }
+        .choice-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .choice-card {
+            width: 280px; padding: 40px 20px; background: rgba(5, 10, 25, 0.4);
+            border: 1px solid var(--doll-gold); cursor: pointer; transition: 0.5s;
+            backdrop-filter: blur(5px);
+        }
+        .choice-card:hover { background: rgba(230, 180, 34, 0.15); transform: translateY(-10px); box-shadow: var(--gold-glow); }
+        .choice-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
+        .choice-name { font-size: 1.2rem; color: var(--doll-gold); letter-spacing: 4px; display: block; margin-bottom: 10px; }
+        .choice-desc { font-size: 0.8rem; opacity: 0.7; line-height: 1.6; }
+
+        /* コンテンツエリア */
+        .app-content { 
+            display: none; padding-top: 100px; padding-bottom: 60px;
+            width: 90%; max-width: 900px; margin: 0 auto;
+        }
+        .app-content.active { display: block; animation: fadeIn 0.8s ease; }
+
+        /* --- タロット用スタイル --- */
+        .tarot-container { max-width: 900px; margin: 0 auto; }
+        .settings-frame { border: 2px solid var(--nouveau-gold); padding: 5px; margin-bottom: 50px; border-radius: 60px 60px 5px 5px; }
+        .settings-inner { border: 1px solid var(--nouveau-gold); padding: 40px 20px; background: var(--panel-bg); border-radius: 55px 55px 3px 3px; text-align: center; }
+        .settings-inner h1 { font-size: 1.3rem; color: var(--nouveau-gold); margin-bottom: 25px; letter-spacing: 0.3em; font-weight: normal; }
+        .tarot-select {
+            background: #2a2622; color: var(--text-ivory); border: 1px solid var(--nouveau-gold);
+            padding: 12px 15px; font-family: inherit; cursor: pointer; width: 100%; max-width: 400px;
+            margin-bottom: 25px; outline: none; text-align-last: center;
+        }
+        .btn-main {
+            display: block; margin: 0 auto; background: transparent; color: var(--nouveau-gold);
+            border: 1px solid var(--nouveau-gold); padding: 10px 50px; font-family: inherit;
+            cursor: pointer; font-size: 1.1rem; transition: 0.4s; letter-spacing: 0.2em;
+        }
+        .btn-main:hover { background: var(--nouveau-gold); color: #fff; box-shadow: 0 0 25px rgba(197, 160, 89, 0.4); }
+        .spread-layout { display: flex; justify-content: center; gap: 25px; margin-bottom: 50px; flex-wrap: wrap; }
+        .card-unit { width: 180px; text-align: center; }
+        .card-frame {
+            background: #fdfaf1; border: 4px double var(--nouveau-gold);
+            border-radius: 100px 100px 10px 10px; overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8); position: relative;
+            height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-image: linear-gradient(to bottom, #fffaf0, #e6dec9);
+        }
+        .symbol { font-size: 4.5rem; margin-bottom: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); color: #333; }
+        .card-label-nouveau { font-size: 0.9rem; color: var(--nouveau-rose); font-weight: bold; letter-spacing: 0.15em; border-top: 1px solid var(--nouveau-gold); padding-top: 8px; }
+        .reversed { transform: rotate(180deg); }
+        .doll-letter {
+            margin-top: 50px; padding: 60px 40px; background: rgba(20, 18, 16, 0.85);
+            border-left: 3px solid var(--nouveau-gold); border-right: 3px solid var(--nouveau-gold);
+            position: relative; animation: fadeIn 1.5s ease;
+        }
+        .doll-letter::before { content: "❦"; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); color: var(--nouveau-gold); font-size: 1.5rem; }
+        .doll-speech { font-size: 1rem; white-space: pre-wrap; text-align: justify; letter-spacing: 0.12em; color: var(--text-ivory); line-height: 2.2; }
+        .ans-conclusion { font-size: 1.6rem; color: var(--nouveau-gold); font-weight: bold; display: block; margin-bottom: 40px; letter-spacing: 0.5em; text-align: center; }
+        .card-meaning-box { color: var(--nouveau-gold); border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px; margin-bottom: 30px; font-size: 0.85rem; }
+        .summary-header { display: block; color: var(--nouveau-gold); font-weight: bold; margin: 40px 0 20px 0; border-top: 1px double var(--nouveau-gold); padding-top: 20px; text-align: center; letter-spacing: 0.3em; }
+
+        /* --- ルーン用スタイル --- */
+        #rune-container { width: 100%; max-width: 640px; margin: 0 auto; text-align: center; }
+        .glass-panel {
+            background: rgba(5, 10, 25, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(230, 180, 34, 0.15); border-radius: 10px; padding: 30px; margin-bottom: 35px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+        .rune-title { font-size: 1.8rem; color: var(--doll-gold); letter-spacing: 15px; margin-bottom: 10px; text-shadow: 0 0 20px rgba(230, 180, 34, 0.8); }
+        .rune-subtitle { font-size: 0.75rem; color: var(--doll-gold); opacity: 0.8; margin-bottom: 50px; letter-spacing: 6px; }
+        .rune-btn {
+            background: rgba(230, 180, 34, 0.05); border: 1px solid var(--doll-gold);
+            color: var(--doll-gold); padding: 18px 30px; font-size: 0.9rem;
+            cursor: pointer; transition: 0.4s; width: 100%; max-width: 280px;
+            letter-spacing: 4px; border-radius: 0px; margin-bottom: 12px; font-family: inherit;
+        }
+        .rune-btn:hover { background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 40px rgba(230, 180, 34, 0.6); }
+        .mode-desc { font-size: 0.75rem; color: #cbd5e1; margin-bottom: 40px; opacity: 0.8; line-height: 1.8; }
+        .rune-card { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--doll-gold); padding: 15px 5px; width: 90px; border-radius: 4px; margin: 5px; }
+        .rune-symbol { font-size: 2.5rem; color: white; display: block; margin: 8px 0; }
+        .doll-text-area { text-align: left; line-height: 2.3; font-size: 0.92rem; letter-spacing: 0.08em; color: #f1f5f9; }
+        .section-title { color: var(--doll-gold); font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 25px; display: block; border-bottom: 1px solid rgba(230, 180, 34, 0.3); padding-bottom: 10px; font-weight: bold; text-align: center; }
+        .detail-item { background: rgba(255, 255, 255, 0.02); border-left: 2px solid var(--doll-gold); padding: 15px; margin-bottom: 10px; font-size: 0.85rem; }
+
+        .back-to-top {
+            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
+            background: var(--panel-bg); color: var(--nouveau-gold); border: 1px solid var(--nouveau-gold);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            text-decoration: none; font-size: 1.2rem; cursor: pointer; transition: 0.4s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; z-index: 1000;
+        }
+        .back-to-top.visible { opacity: 1; visibility: visible; }
+        
+        .hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="star-field"></div>
+<div class="magic-bg-container"><div class="magic-circle"></div></div>
+
+<section id="top-selector">
+    <h1 class="selector-title">Doll's fortune telling</h1>
+    <div class="choice-container">
+        <div class="choice-card" onclick="initApp('tarot')">
+            <span class="choice-icon">🃏</span>
+            <span class="choice-name">TAROT</span>
+            <span class="choice-desc">神秘のカードに描かれた<br>聖域の啓示を読み解きます。</span>
+        </div>
+        <div class="choice-card" onclick="initApp('rune')">
+            <span class="choice-icon">💎</span>
+            <span class="choice-name">RUNE</span>
+            <span class="choice-desc">宿命の星譜に刻まれた<br>ルーン文字の囁きを聴きます。</span>
+        </div>
+    </div>
+</section>
+
+<nav id="global-nav">
+    <button class="nav-btn" id="btn-tarot" onclick="switchApp('tarot', this)">TAROT</button>
+    <button class="nav-btn" id="btn-rune" onclick="switchApp('rune', this)">RUNE</button>
+</nav>
+
+<section id="tarot-app" class="app-content">
+    <div id="tarot-top"></div>
+    <div class="tarot-container">
+        <div class="settings-frame">
+            <div class="settings-inner">
+                <h1>Sanctuary Oracle</h1>
+                <select id="spread-type" class="tarot-select">
+                    <option value="one_msg">ワンオラクル（対話）</option>
+                    <option value="one_yn">ワンオラクル（YES/NO）</option>
+                    <option value="two">ツーマインド（表面と深層）</option>
+                    <option value="three">スリーカード（過去・現在・未来）</option>
+                </select>
+                <button class="btn-main" onclick="占い()">運命を紐解く</button>
+            </div>
+        </div>
+        <div id="tarot-results" class="hidden">
+            <div class="spread-layout" id="stage"></div>
+            <div class="doll-letter"><div class="doll-speech" id="doll-speech"></div></div>
+        </div>
+    </div>
+</section>
+
+<section id="rune-app" class="app-content">
+    <div id="rune-container">
+        <div id="main-screen" class="glass-panel">
+            <h1 class="rune-title">DOLL ORACLE</h1>
+            <p class="rune-subtitle">〜宿命の星譜に刻まれた導き〜</p>
+            <button class="rune-btn" onclick="startDivination('one')">一言の囁き</button>
+            <div class="mode-desc">星々が教える、今この瞬間の真実。</div>
+            <button class="rune-btn" onclick="startDivination('three')">三時の回廊</button>
+            <div class="mode-desc">過去・現在・未来の心境の変化を<br>読み解きます。</div>
+            <button class="rune-btn" onclick="startDivination('cast')">五星の星陣</button>
+            <div class="mode-desc">二人の絆の行方を、多角的に映し出します。</div>
+        </div>
+
+        <div id="result-screen" class="hidden">
+            <h2 id="result-title" style="color:var(--doll-gold); letter-spacing: 8px; margin-bottom: 40px;"></h2>
+            <div id="rune-display" style="display:flex; justify-content:center; flex-wrap:wrap; margin-bottom: 30px;"></div>
+            
+            <div class="glass-panel doll-text-area">
+                <span class="section-title">【 星譜の囁き 】</span>
+                <div id="personal-message"></div>
+            </div>
+
+            <div class="glass-panel doll-text-area">
+                <span class="section-title">【 星譜の紐解き（解説） 】</span>
+                <div id="rune-list-detail"></div>
+            </div>
+
+            <div class="glass-panel doll-text-area">
+                <span class="section-title">【 宿命の総括（ドールより） 】</span>
+                <div id="combined-interpretation" style="color: #cbd5e1; font-weight: bold;"></div>
+            </div>
+            
+            <button class="rune-btn" onclick="goBack()" style="width: auto; padding: 12px 60px;">戻る</button>
+        </div>
+    </div>
+</section>
+
+<a href="#" class="back-to-top" id="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">▲</a>
+
+<script>
+// --- 統合制御ロジック ---
+
+// 初回起動時の処理
+function initApp(appId) {
+    document.getElementById('top-selector').style.display = 'none';
+    document.getElementById('global-nav').style.display = 'flex';
+    const targetBtn = appId === 'tarot' ? document.getElementById('btn-tarot') : document.getElementById('btn-rune');
+    switchApp(appId, targetBtn);
+}
+
+function switchApp(appId, btn) {
+    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(appId + '-app').classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// スクロール検知
+window.onscroll = function() {
+    const btn = document.getElementById("top-btn");
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        btn.classList.add("visible");
+    } else {
+        btn.classList.remove("visible");
+    }
+};
+
+// --- タロットロジック ---
+const tarotDeck = [
+    { name: "愚者", sym: "👣", upMean: "自由、無限の可能性、新たな出発、純粋。", revMean: "無計画、無謀、不安定、現実逃避。", longUp: "どこへでも行ける。\n何にでもなれる。\n\nいまのあなたは重力から解き放たれ、まだ地図に載っていない無垢な道の上に立っている。\n荷物はそれだけで十分。身軽なほど、遠くまで行けるから。\n\n足元の断崖を恐れる必要はない。\nただ、風が吹く方向へ、魂が躍る方へ、その一歩を預ける。\n世界は想像よりもずっと広く、静かな優しさに満ちている。", longRev: "足元がふらついている。\n自由を求めるあまり、自身の居場所を見失っていないだろうか。\n\n無防備であることは、必ずしも勇気とは重ならない。\nいまは風が強すぎる。一度立ち止まり、深く呼吸を整えること。\n\n向かおうとしていた場所を、もう一度だけ正しく思い出す必要がある。\n焦らなくとも、道はそこにあり続ける。" },
+    { name: "魔術師", sym: "🪄", upMean: "創造、意志、技術、知性。", revMean: "混迷、準備不足、才能の浪費、欺瞞。", longUp: "机の上には、すべての道具が揃っている。\n火、水、風、闘、そして土。\n\nあとはその指先で、どのような物語を紡ぎ出すか決めるだけ。\n魔法とは、決して特別な力ではない。\n対象へ向けられた、純粋な意志そのもの。\n\n深く呼吸をし、いまこの瞬間から、新しい世界を創り始める。\nその鮮やかな手並みを、ここで静かに見守っている。", longRev: "多くの道具を持ちながら、どれも手に馴染まずにいる。\n焦って言葉を唱えても、不揃いな煙が上がるだけ。\n\nいま必要なのは、新しい技術ではない。\n机の上を一度整理し、本当に扱うべきものひとつだけを手に取ること。\n\n基本に立ち返る勇気があれば。\n空回りしていた歯車は、再び静かに回り始める。" },
+    { name: "女教皇", sym: "📖", upMean: "静観、知性、直感、神秘、沈黙。", revMean: "神経質、ヒステリック、視野狭窄、現実逃避。", longUp: "少し、静かに。\n外側の喧騒に惑わされ、自身の本当の声を忘れてはいないだろうか。\n\n心の奥底には、まだ誰も踏み込んだことのない深い湖がある。\nその澄んだ水面に映る月を見つめること。\n\n答えは、誰かに問うものではなく、そこにあるものをただ認識するだけでいい。\n沈黙を友とし、自身の直感に重さを預ける。いまは、そんな時間が必要だ。", longRev: "神経が過敏になりすぎている。\n小さな物音にも心が震え、安らぎを失っている。\n\n他者の言葉を深読みし、自らを追い詰めるのはもう終わりにすること。\nいまは思考を閉じ、静寂の中に身を浸す。\n\n知性で解決を試みるのではなく、ただ心を眠らせること。\nそれが、いまのあなたにとって唯一の処方箋となる。" },
+    { name: "隠者", sym: "💡", upMean: "内省、真理、静寂、精神的自立。", revMean: "閉鎖的、孤独感、現実拒絶、独りよがり。", longUp: "独りで歩む暗い道も、足元を照らす小さな灯火があれば事足りる。\nいまは外側の喧騒から離れ、内側へと深く潜り、自分だけの真実を見つけ出す時間。\n\n孤独を恐れる必要はない。\n静寂の中でこそ、ようやく聞こえてくる声があるのだから。\n\n暗闇に目が慣れたとき。\nあなたは自身の中に眠る、揺るぎない確信を見つけ出すはずだ。", longRev: "孤独が、あなたを冷たく閉ざしてしまった。\n自身の中に閉じこもりすぎると、他者へと続く扉さえ見失ってしまう。\n\n内に潜ることは、現実から逃げることとは違う。\n暗い部屋で耳を塞ぐのをやめて、少しだけ窓を開けてみること。\n\nあなたが探し求めている光は。\n案外、すぐ外側に降り注いでいるのかもしれない。" },
+    { name: "運命の輪", sym: "🎡", upMean: "幸運、転換点、急展開、チャンスの到来。", revMean: "暗転、不運、空回り、一時的な停滞。", longUp: "風向きが変わった。\n重たい歯車が音を立て、あなたを未知の場所へと運び出そうとしている。\n\nこれは個人の力によるものではなく、世界の理が用意した絶好の好機。\n迷う時間は残されていない。この大きな流れに身を任けること。\n\nやってくる事象を、ただそのまま受け入れる。\nいま、あなたの人生の新しい章が、静かに書き始められた。", longRev: "いまは何を試みても、タイミングが合わない時期。\n焦って空回りする歯車に指を触れれば、深く傷つくだけ。\n\n運命が、少しの休息を求めている。\nこの停滞を無理に動かそうとせず、次に風が吹くのを静かに待つこと。\n\nいまは力を蓄えるとき。\n輪が再び回り始めるその日まで、自らを整えることに専念すべきだ。" },
+    { name: "塔", sym: "⚡", upMean: "崩壊、災難、衝撃的な変化、虚飾の打破。", revMean: "緊迫、不時着、再建への兆し、ショックの緩和。", longUp: "積み上げてきた虚像が、一瞬にして崩れ去る。\nそれは真実ではないものを壊すための、慈悲を伴った衝撃。\n\n瓦礫の下から、ようやく本物の土台が姿を現す。\n失ったものを嘆く必要はない。\n\n偽りの平和の中に留まるよりも、裸の心で荒野に立つほうが。\nこれからのあなたを強く、そして自由にする。\n再構築を始めるのは、いま。", longRev: "大きな破綻を、間一髪で逃れている状態。\nあるいは、崩壊の予感に怯えている。\n\n小手先の修理では、もう間に合わない段階に達している。\n無理に形を維持しようとせず、壊れるべきものは壊れるに任せる。\n\nその潔さが、被害を最小限に抑える唯一の手段となる。\n新しい場所へ移るための、痛みを伴う通過儀礼だ。" },
+    { name: "世界", sym: "🌍", upMean: "完成、成功、到達、完璧な調和。", revMean: "未完成、中途半端、スランプ、満足感の欠如。", longUp: "長い旅路が、完璧な円を描いて完結した。\nいまはこれまでの歩みを称え、充足感に包まれていていい。\n\nあなたは、ふさわしい場所にたどり着いた。\n宇宙とあなたが一体になるような、完璧な調和の中にいる。\n\n何も足りないものはないし、何も余計なものはない。\nこの至福の瞬間を、心ゆくまで味わうこと。\nあなたは、ここにいていい。", longRev: "ゴールはすぐ目の前にあるのに、最後の一歩が踏み出せないでいる。\nあとほんの少しだけ、足りないピースがあるようだ。\n\nそれは技術や物ではなく、あなた自身の「納得」かもしれない。\n中途半端なまま、終わらせないで。\n\nもう一度だけ、全体を見渡してみること。\n完璧な調和まであとわずか.妥協せずに、その手で円を閉じてほしい。" }
+];
+
+function 占い() {
+    const type = document.getElementById('spread-type').value;
+    const resultsArea = document.getElementById('tarot-results');
+    const stage = document.getElementById('stage');
+    const speech = document.getElementById('doll-speech');
+    stage.innerHTML = "";
+    resultsArea.classList.remove('hidden');
+    setTimeout(() => { resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
+    let selected = [];
+    const count = (type === 'two') ? 2 : (type === 'three' ? 3 : 1);
+    for(let i=0; i<count; i++) {
+        const card = tarotDeck[Math.floor(Math.random() * tarotDeck.length)];
+        const isUp = Math.random() > 0.5;
+        selected.push({ ...card, isUp });
+        stage.innerHTML += `<div class="card-unit" style="animation-delay: ${i*0.2}s"><div class="card-frame ${!isUp?'reversed':''}"><div class="symbol">${card.sym}</div><div class="card-label-nouveau">${card.name}</div></div></div>`;
+    }
+    speech.innerHTML = 生成メッセージ(selected, type);
+}
+
+function 生成メッセージ(cards, type) {
+    let output = "";
+    if (type === 'one_yn') {
+        const c = cards[0];
+        output += `<span class='ans-conclusion'>【 ${c.isUp ? 'YES' : 'NO'} 】</span><div class='card-meaning-box'>${c.name}（${c.isUp ? '正位置' : '逆位置'}）：${c.isUp ? c.upMean : c.revMean}</div>${c.isUp ? c.longUp : c.longRev}`;
+    } else if (type === 'one_msg') {
+        const c = cards[0];
+        output += `<div class='card-meaning-box'>${c.name}（${c.isUp ? '正位置' : '逆位置'}）：${c.isUp ? c.upMean : c.revMean}</div>${c.isUp ? c.longUp : c.longRev}`;
+    } else if (type === 'two') {
+        output += `<div class='card-meaning-box'>表面：${cards[0].name}（${cards[0].isUp?'正':'逆'}）／ 深層：${cards[1].name}（${cards[1].isUp?'正':'逆'}）</div>『${cards[0].name}』\n${cards[0].isUp ? cards[0].longUp : cards[0].longRev}\n\n『${cards[1].name}』\n${cards[1].isUp ? cards[1].longUp : cards[1].longRev}<span class='summary-header'>─ 総括 ─</span>光を浴びる仮面と、闇に沈む素顔。その二つは、決して切り離せるものではない。\nいま、あなたの意識が向いている現実の姿と、心の奥底で静かに疼いているもう一つの衝動が、複雑に糸を絡ませ合っているのが見える。\n\n矛盾することを、どうか恐れないで。\n表に見えているものがすべてではなく、かといって、深層にあるものだけが正解でもない。\n\nその両方を受け入れることで、歪んでいた視界は次第に重なり、ひとつの確かな輪郭を結ぶことになる。\nあなたの魂が真に求めているのは、否定ではなく、ただ静かなる調和なのだから。`;
+    } else if (type === 'three') {
+        output += `<div class='card-meaning-box'>過去：${cards[0].name} ／ 現在：${cards[1].name} ／ 未来：${cards[2].name}</div>『${cards[0].name}』\n${cards[0].isUp ? cards[0].longUp : cards[0].longRev}\n\n『${cards[1].name}』\n${cards[1].isUp ? cards[1].longUp : cards[1].longRev}\n\n『${cards[2].name}』\n${cards[2].isUp ? cards[2].longUp : cards[2].longRev}<span class='summary-header'>─ 総括 ─</span>時間は、ぶつ切りの破片ではない。ひとつの川が流れるように、静かにつながっている。\nかつての衝撃や積み重ねが、いまこの瞬間の抗えないうねりを作り、それがやがて、まだ何の色もついていない無垢な明日へとあなたを運んでいく。\n\nたとえ、いまの道が険しく見えたとしても。\nすべての出来事は、あなたという存在を完成させるための不可欠な筆致としてそこに刻まれている。\n\nこれまでの痛みも、いまの迷いも、未来の歓喜も、すべては対等な価値を持っていることに気づいてほしい。\n旅路の先には、あなたにしか到達できない、特別な景色が待っているのだから。`;
+    }
+    return output;
+}
+
+// --- ルーンロジック ---
+const runes = [
+    { char: "ᚠ", name: "フェイヒュー", meaning: "豊かな実り・精神的な充足", pos: "あなたとの時間に、何物にも代えがたい「至上の価値」を感じています。", rev: "愛情の停滞。どこか満たされない空虚さを抱いています。", msg: "あなたの隣にいるだけで、私の心は温かな黄金の光で満たされていくのがわかります。あなたは私にとって、この広大な星空の中でたった一つの、触れることのできる「実り」なのです。この穏やかな充足が永遠に続くように、私はあなたの影に寄り添い、あなたの笑顔をずっと見守り続けたい……。たとえ世界が夜に沈んでも、あなたという光があれば、私はそれだけで十分に豊かなのです。", revMsg: "胸の奥に、少しだけ冷たい隙間を感じています。あなたは優しいけれど、今の私はもっと、あなたの体温を近くで確かめていたいのです。愛情が指の隙間からこぼれ落ちてしまうような不安を、あなたの愛で埋めてはくれませんか？ 私だけを見つめて、この寂しさを埋め尽くしてほしい……。私を一人、冬の夜に置き去りにしないで。" },
+    { char: "ᚢ", name: "ウルズ", meaning: "猛々しい生命力・現状を打破する勇気", pos: "あなたのためにすべてを変えていこうとする、力強く真っ直ぐな意志に溢れています。", rev: "力の空回り。今は静かな癒やしを求めています。", msg: "今の私は、あなたのためにすべてを尽くしたいという、荒々しいほどに強い情熱に突き動かされています。あなたが望むなら、私はどんな過酷な運命の鎖さえも引きちぎり、あなたの行く道を切り拓いてみせましょう。私の中にある生命の鼓動は、すべてあなたの為だけに刻まれています。この魂の熱量が、あなたを包むすべての暗闇を焼き尽くすまで、私は決して止まることはありません。", revMsg: "少しだけ、心臓のネジを休めたい気分なのです。あなたのことは愛していますが、今はただ、静かな星空の下で、あなたと二人きりで微睡んでいたい……。私の魂を動かす強すぎる力に、少しだけ疲れてしまったのかもしれません。あなたが再び私に勇気を与えてくれるまで、今はどうか、優しく抱きしめて私の眠りを見守っていてください。" },
+    { char: "ᚦ", name: "ソリサズ", meaning: "守護の盾・覚悟を伴う決断", pos: "あなたを傷つけるすべてから守り抜くという、鋭くも深い忠誠心を持っています。", rev: "あなたにさえ棘を向けてしまうような、不器用な葛藤の中にいます。", msg: "誰があなたを傷つけようとも、私はあなたの盾となって立ちはだかります。あなたを惑わす不純なものは、私がこの手ですべて退けましょう。あなたはただ、安心して私の隣で安らいでいてください。私の愛は、あなたを守り抜くための強固な砦であり、同時にあなた以外のすべてを拒絶する、鋭い棘でもあるのです。あなたが私の内側にいてくれる限り、何も恐れる必要はありません。", revMsg: "世界が少しだけ鋭利に感じられて、私は自分の殻に閉じこもってしまっているのかもしれません。あなたの愛を信じているのに、近づこうとすると自分の棘であなたを傷つけてしまいそうで、それが何よりも怖いのです……。少しだけ一人で、この心の嵐が過ぎるのを待たせてください。必ずあなたの元へ戻りますから、どうか見捨てないで。" }
+];
+
+function formatText(text) { return text.replace(/。/g, "。<br><br>").replace(/<br><br>$/, ""); }
+
+function startDivination(mode) {
+    const display = document.getElementById('rune-display');
+    const msgArea = document.getElementById('personal-message');
+    const listDetail = document.getElementById('rune-list-detail');
+    const combinedInterp = document.getElementById('combined-interpretation');
+    display.innerHTML = ''; listDetail.innerHTML = '';
+    let count = (mode === 'one') ? 1 : (mode === 'three' ? 3 : 5);
+    let labels = (mode === 'three') ? ["過ぎ去りし刻", "現在の心境", "来たるべき未来"] : ["今の二人", "秘めたる願い", "試練の扉", "本音の在処", "宿命の結末"];
+    let shuffled = [...runes].sort(() => 0.5 - Math.random());
+    let results = [];
+    for (let i = 0; i < count; i++) {
+        let r = shuffled[i % runes.length];
+        let isRev = Math.random() > 0.4;
+        results.push({ ...r, isRev, label: labels[i] });
+        const card = document.createElement('div');
+        card.className = 'rune-card';
+        card.innerHTML = `<div style="font-size:0.6rem; color:var(--doll-gold);">${labels[i]}</div><span class="rune-symbol" style="${isRev ? 'transform:rotate(180deg);' : ''}">${r.char}</span><div style="font-size:0.75rem;">${r.name}</div>`;
+        display.appendChild(card);
+        const detail = document.createElement('div');
+        detail.className = 'detail-item';
+        detail.innerHTML = `<strong>${labels[i]}：${r.name}（${isRev ? '逆位置' : '正位置'}）</strong><div style="font-size:0.75rem; opacity:0.8;">意味：${r.meaning}</div><div>${isRev ? r.rev : r.pos}</div>`;
+        listDetail.appendChild(detail);
+    }
+    let main = (mode === 'one') ? results[0] : (mode === 'three' ? results[1] : results[3]);
+    msgArea.innerHTML = formatText(main.isRev ? main.revMsg : main.msg);
+    let summaryText = "";
+    if (mode === 'one') {
+        summaryText = `今は${results[0].meaning}という星の巡りの中にいます。${results[0].isRev ? '少し立ち止まる勇気が、明日の輝きに変わります。' : '運命があなたを優しく押し上げてくれています。'}私を信じて、身を委ねてください。`;
+    } else if (mode === 'three') {
+        summaryText = `これまでは${results[0].meaning}という経験の中にありましたが、今は${results[1].meaning}を強く感じる時期に来ています。たとえ今が${results[1].isRev ? '迷いの中にあったとしても、それは魂が成長するための夜霧。' : '喜びに溢れていても、奢らずに進みましょう。'}やがて訪れる${results[2].meaning}の刻、二人の絆は完成へと向かいます。`;
+    } else {
+        summaryText = `今の二人は「${results[0].meaning}」という強い運命の渦中にあります。あなたが心に抱く「${results[1].meaning}」という願いを叶えるには、「${results[2].meaning}」という試練を勇気を持って越えなければなりません。でも安心してください。私の魂の根源にある「${results[3].meaning}」という情熱を信じてくれれば、必ず星々が祝福する「${results[4].meaning}」という最高の結末へと、私たちが手を携えて辿り着けるはずですから。`;
+    }
+    combinedInterp.innerHTML = formatText(summaryText);
+    document.getElementById('result-title').innerText = mode === 'one' ? "一言の囁き" : (mode === 'three' ? "三時の回廊" : "五星の星陣");
+    document.getElementById('main-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function goBack() {
+    document.getElementById('main-screen').classList.remove('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
+
