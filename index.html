@@ -5,40 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doll's fortune telling</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>✡️</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:90px;%22>✡️</text></svg>">
-
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;700&display=swap');
         
         :root {
             --doll-gold: #e6b422;
             --doll-white: #f8f9fa;
+            --doll-blue: #1e3a8a;
             --doll-navy: #0a1128;
             --doll-deep: #020408;
             --text-main: #f8f9fa;
             --gold-glow: 0 0 40px rgba(230, 180, 34, 0.5);
-            
-            /* タロット用変数 */
             --nouveau-gold: #c5a059;
             --nouveau-rose: #9d5b5b;
             --text-ivory: #e6e2d3;
-            --panel-bg: rgba(26, 24, 22, 0.95);
+            --panel-bg: rgba(10, 20, 40, 0.9);
         }
 
         body {
             margin: 0; padding: 0;
-            background-color: var(--doll-deep);
+            background-color: var(--doll-navy);
             color: var(--text-main);
-            font-family: 'Shippori Mincho', "Hiragino Mincho ProN", serif;
+            font-family: 'Shippori Mincho', serif;
             min-height: 100vh; overflow-x: hidden;
         }
 
-        /* 共通背景 */
         .star-field {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
-            background: radial-gradient(circle at center, var(--doll-navy) 0%, var(--doll-deep) 100%);
+            background: radial-gradient(circle at center, var(--doll-white) 0%, var(--doll-blue) 40%, var(--doll-navy) 100%);
+            opacity: 0.8;
         }
+
         .magic-bg-container {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             z-index: -1; pointer-events: none;
@@ -46,132 +44,97 @@
         .magic-circle {
             width: 900px; height: 900px; border: 1.5px solid var(--doll-gold);
             border-radius: 50%; box-shadow: var(--gold-glow);
-            animation: rotateCircle 180s linear infinite; position: relative; opacity: 0.7;
-        }
-        .magic-circle::before {
-            content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="none" stroke="%23e6b422" stroke-width="0.1"/><path d="M50 0 L93.3 25 L93.3 75 L50 100 L6.7 75 L6.7 25 Z" fill="none" stroke="%23e6b422" stroke-width="0.2"/><circle cx="50" cy="50" r="32" fill="none" stroke="%23e6b422" stroke-width="0.1" stroke-dasharray="2,2"/></svg>') center/contain no-repeat;
+            animation: rotateCircle 180s linear infinite; position: relative; opacity: 0.4;
         }
         @keyframes rotateCircle { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* 統合ナビゲーション */
         #global-nav {
             position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px);
+            background: rgba(10, 17, 40, 0.85); backdrop-filter: blur(10px);
             display: none; justify-content: center; align-items: center;
-            z-index: 1000; border-bottom: 1px solid rgba(230, 180, 34, 0.3);
+            z-index: 1000; border-bottom: 1px solid var(--doll-gold);
         }
         .nav-btn {
             background: transparent; color: var(--doll-gold); border: 1px solid var(--doll-gold);
             margin: 0 10px; padding: 8px 15px; cursor: pointer; font-family: inherit;
             font-size: 0.8rem; transition: 0.4s; letter-spacing: 2px;
         }
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 20px rgba(230, 180, 34, 0.5);
-        }
-        .nav-btn.home-btn { border-color: rgba(230, 180, 34, 0.5); opacity: 0.8; }
 
-        /* トップセレクト画面 */
         #top-selector {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box;
-            animation: fadeIn 1s ease;
+            min-height: 100vh; text-align: center; padding: 20px;
         }
-        .selector-title {
-            font-size: 2.2rem; color: var(--doll-gold); letter-spacing: 12px; margin-bottom: 50px;
-            text-shadow: 0 0 30px rgba(230, 180, 34, 0.8);
-        }
-        .choice-container { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
-        .choice-card {
-            width: 280px; padding: 40px 20px; background: rgba(5, 10, 25, 0.4);
-            border: 1px solid var(--doll-gold); cursor: pointer; transition: 0.5s;
-            backdrop-filter: blur(5px);
-        }
-        .choice-card:hover { background: rgba(230, 180, 34, 0.15); transform: translateY(-10px); box-shadow: var(--gold-glow); }
-        .choice-icon { font-size: 3rem; margin-bottom: 20px; display: block; }
-        .choice-name { font-size: 1.2rem; color: var(--doll-gold); letter-spacing: 4px; display: block; margin-bottom: 10px; }
-        .choice-desc { font-size: 0.8rem; opacity: 0.7; line-height: 1.6; }
 
-        /* コンテンツエリア */
-        .app-content { 
-            display: none; padding-top: 100px; padding-bottom: 60px;
-            width: 90%; max-width: 900px; margin: 0 auto;
+        .gold-title {
+            font-size: 2.5rem; letter-spacing: 12px; margin-bottom: 30px;
+            background: linear-gradient(to bottom, #fff7ad 0%, #e6b422 45%, #8a6d19 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 10px rgba(230, 180, 34, 0.4)); font-weight: bold;
         }
-        .app-content.active { display: block; animation: fadeIn 0.8s ease; }
 
-        /* --- タロット用スタイル --- */
-        .tarot-container { max-width: 900px; margin: 0 auto; }
+        .intro-text {
+            color: #ffffff; line-height: 2.2; margin-bottom: 40px; text-align: left;
+            display: inline-block; font-size: 1rem; background: rgba(10, 20, 45, 0.9);
+            padding: 30px 45px; border: 1.5px solid var(--doll-gold); border-radius: 12px;
+            backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px;
+        }
+
+        .app-content { display: none; padding-top: 120px; padding-bottom: 60px; width: 95%; max-width: 900px; margin: 0 auto; }
+        .app-content.active { display: block; }
+
         .settings-frame { border: 2px solid var(--nouveau-gold); padding: 5px; margin-bottom: 50px; border-radius: 60px 60px 5px 5px; }
         .settings-inner { border: 1px solid var(--nouveau-gold); padding: 40px 20px; background: var(--panel-bg); border-radius: 55px 55px 3px 3px; text-align: center; }
-        .settings-inner h1 { font-size: 1.3rem; color: var(--nouveau-gold); margin-bottom: 25px; letter-spacing: 0.3em; font-weight: normal; }
-        .tarot-select {
-            background: #2a2622; color: var(--text-ivory); border: 1px solid var(--nouveau-gold);
-            padding: 12px 15px; font-family: inherit; cursor: pointer; width: 100%; max-width: 400px;
-            margin-bottom: 25px; outline: none; text-align-last: center;
-        }
-        .btn-main {
-            display: block; margin: 0 auto; background: transparent; color: var(--nouveau-gold);
-            border: 1px solid var(--nouveau-gold); padding: 10px 50px; font-family: inherit;
-            cursor: pointer; font-size: 1.1rem; transition: 0.4s; letter-spacing: 0.2em;
-        }
-        .btn-main:hover { background: var(--nouveau-gold); color: #fff; box-shadow: 0 0 25px rgba(197, 160, 89, 0.4); }
-        .spread-layout { display: flex; justify-content: center; gap: 25px; margin-bottom: 50px; flex-wrap: wrap; }
-        .card-unit { width: 180px; text-align: center; }
-        .card-frame {
-            background: #fdfaf1; border: 4px double var(--nouveau-gold);
-            border-radius: 100px 100px 10px 10px; overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8); position: relative;
-            height: 280px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-image: linear-gradient(to bottom, #fffaf0, #e6dec9);
-        }
-        .symbol { font-size: 4.5rem; margin-bottom: 15px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); color: #333; }
-        .card-label-nouveau { font-size: 0.9rem; color: var(--nouveau-rose); font-weight: bold; letter-spacing: 0.15em; border-top: 1px solid var(--nouveau-gold); padding-top: 8px; }
-        .reversed { transform: rotate(180deg); }
-        .doll-letter {
-            margin-top: 50px; padding: 60px 40px; background: rgba(20, 18, 16, 0.85);
-            border-left: 3px solid var(--nouveau-gold); border-right: 3px solid var(--nouveau-gold);
-            position: relative; animation: fadeIn 1.5s ease;
-        }
-        .doll-letter::before { content: "❦"; position: absolute; top: 15px; left: 50%; transform: translateX(-50%); color: var(--nouveau-gold); font-size: 1.5rem; }
-        .doll-speech { font-size: 1rem; white-space: pre-wrap; text-align: justify; letter-spacing: 0.12em; color: var(--text-ivory); line-height: 2.2; }
-        .ans-conclusion { font-size: 1.6rem; color: var(--nouveau-gold); font-weight: bold; display: block; margin-bottom: 40px; letter-spacing: 0.5em; text-align: center; }
-        .card-meaning-box { color: var(--nouveau-gold); border-bottom: 1px solid rgba(197, 160, 89, 0.3); padding-bottom: 15px; margin-bottom: 30px; font-size: 0.85rem; }
-        .summary-header { display: block; color: var(--nouveau-gold); font-weight: bold; margin: 40px 0 20px 0; border-top: 1px double var(--nouveau-gold); padding-top: 20px; text-align: center; letter-spacing: 0.3em; }
 
-        /* --- ルーン用スタイル --- */
-        #rune-container { width: 100%; max-width: 640px; margin: 0 auto; text-align: center; }
-        .glass-panel {
-            background: rgba(5, 10, 25, 0.1); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
-            border: 1px solid rgba(230, 180, 34, 0.15); border-radius: 10px; padding: 30px; margin-bottom: 35px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-        }
-        .rune-title { font-size: 1.8rem; color: var(--doll-gold); letter-spacing: 15px; margin-bottom: 10px; text-shadow: 0 0 20px rgba(230, 180, 34, 0.8); }
-        .rune-subtitle { font-size: 0.75rem; color: var(--doll-gold); opacity: 0.8; margin-bottom: 50px; letter-spacing: 6px; }
-        .rune-btn {
-            background: rgba(230, 180, 34, 0.05); border: 1px solid var(--doll-gold);
-            color: var(--doll-gold); padding: 18px 30px; font-size: 0.9rem;
-            cursor: pointer; transition: 0.4s; width: 100%; max-width: 280px;
-            letter-spacing: 4px; border-radius: 0px; margin-bottom: 12px; font-family: inherit;
-        }
-        .rune-btn:hover { background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 40px rgba(230, 180, 34, 0.6); }
-        .mode-desc { font-size: 0.75rem; color: #cbd5e1; margin-bottom: 40px; opacity: 0.8; line-height: 1.8; }
-        .rune-card { background: rgba(0, 0, 0, 0.6); border: 1px solid var(--doll-gold); padding: 15px 5px; width: 90px; border-radius: 4px; margin: 5px; }
-        .rune-symbol { font-size: 2.5rem; color: white; display: block; margin: 8px 0; }
-        .doll-text-area { text-align: left; line-height: 2.3; font-size: 0.92rem; letter-spacing: 0.08em; color: #f1f5f9; }
-        .section-title { color: var(--doll-gold); font-size: 0.8rem; letter-spacing: 4px; margin-bottom: 25px; display: block; border-bottom: 1px solid rgba(230, 180, 34, 0.3); padding-bottom: 10px; font-weight: bold; text-align: center; }
-        .detail-item { background: rgba(255, 255, 255, 0.02); border-left: 2px solid var(--doll-gold); padding: 15px; margin-bottom: 10px; font-size: 0.85rem; }
-
-        .back-to-top {
-            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px;
-            background: var(--panel-bg); color: var(--nouveau-gold); border: 1px solid var(--nouveau-gold);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            text-decoration: none; font-size: 1.2rem; cursor: pointer; transition: 0.4s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5); opacity: 0; visibility: hidden; z-index: 1000;
-        }
-        .back-to-top.visible { opacity: 1; visibility: visible; }
+        .spread-layout { display: flex; justify-content: center; gap: 25px; margin-bottom: 50px; flex-wrap: wrap; position: relative; }
+        .card-unit { width: 160px; text-align: center; transition: 0.5s ease-out; }
         
-        .hidden { display: none; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* キャスティング用のランダム配置用クラス */
+        .cast-unit { position: absolute; width: 120px !important; }
+
+        .card-frame {
+            background: #fdfaf1; border: 4px double var(--nouveau-gold); border-radius: 10px;
+            height: 260px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background-image: linear-gradient(to bottom, #fffaf0, #e6dec9);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .rune-stone {
+            width: 100px; height: 120px; background: #333; color: #eee;
+            border-radius: 40% 40% 45% 45%; display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 15px #000, 5px 5px 15px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        .symbol { font-size: 3.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+        .reversed { transform: rotate(180deg); }
+        
+        .ans-conclusion { 
+            font-size: 3rem; color: var(--doll-gold); font-weight: bold; 
+            text-align: center; margin-bottom: 40px; white-space: nowrap;
+            text-shadow: 0 0 15px rgba(230, 180, 34, 0.5);
+        }
+
+        .doll-letter {
+            margin-top: 20px; padding: 60px 40px; background: rgba(10, 15, 35, 0.85);
+            border-left: 3px solid var(--doll-gold); border-right: 3px solid var(--doll-gold);
+            margin-bottom: 40px; position: relative;
+        }
+        .doll-speech { font-size: 1.1rem; line-height: 2.4; color: var(--text-ivory); white-space: pre-wrap; font-weight: 500; }
+        .doll-footer { margin-top:30px; color:var(--doll-gold); font-size:0.9rem; text-align:right; white-space: nowrap; }
+
+        .glass-panel { background: rgba(10, 25, 50, 0.7); border: 1px solid rgba(230, 180, 34, 0.3); border-radius: 10px; padding: 35px; margin-bottom: 35px; backdrop-filter: blur(5px); }
+        .doll-text-area { line-height: 2.5; font-size: 1rem; color: #f1f5f9; white-space: pre-wrap; }
+        .section-title { color: var(--doll-gold); font-size: 1.1rem; letter-spacing: 6px; margin-bottom: 30px; display: block; border-bottom: 1px solid rgba(230, 180, 34, 0.3); text-align: center; font-weight: bold; padding-bottom: 10px; }
+
+        .tarot-select { background: #1a1e2e; color: var(--text-ivory); border: 1px solid var(--nouveau-gold); padding: 12px; width: 100%; max-width: 400px; margin-bottom: 25px; font-family: inherit; cursor: pointer; }
+        .btn-main { background: transparent; color: var(--doll-gold); border: 1px solid var(--doll-gold); padding: 12px 50px; cursor: pointer; transition: 0.4s; letter-spacing: 0.3em; font-family: inherit; font-weight: bold; }
+        .btn-main:hover { background: var(--doll-gold); color: var(--doll-navy); box-shadow: 0 0 20px rgba(230,180,34,0.4); }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 600px) {
+            .intro-text { padding: 20px; font-size: 0.9rem; }
+            .gold-title { font-size: 1.8rem; }
+            .doll-speech { font-size: 0.95rem; }
+        }
     </style>
 </head>
 <body>
@@ -180,231 +143,325 @@
 <div class="magic-bg-container"><div class="magic-circle"></div></div>
 
 <section id="top-selector">
-    <h1 class="selector-title">Doll's fortune telling</h1>
-    <div class="choice-container">
-        <div class="choice-card" onclick="initApp('tarot')">
-            <span class="choice-icon">🃏</span>
-            <span class="choice-name">TAROT</span>
-            <span class="choice-desc">神秘のカードに描かれた<br>聖域の啓示を読み解きます。</span>
-        </div>
-        <div class="choice-card" onclick="initApp('rune')">
-            <span class="choice-icon">💎</span>
-            <span class="choice-name">RUNE</span>
-            <span class="choice-desc">宿命の星譜に刻まれた<br>ルーン文字の囁きを聴きます。</span>
-        </div>
+    <h1 class="gold-title">Doll's fortune telling</h1>
+    <div class="intro-text">
+        よく来たな。<br>
+        ここでは虹のドールである俺、白蓮が<br>
+        あんたの傍にいるドールを占い、<br>
+        どんな気持ちなのかを代弁する。<br><br>
+        当たるも八卦当たらぬも八卦だが、<br>
+        もし試したければ以下から<br>
+        占い方法を選んでくれ。
+    </div>
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+        <button class="btn-main" onclick="initApp('tarot')">TAROT</button>
+        <button class="btn-main" onclick="initApp('rune')">RUNE</button>
     </div>
 </section>
 
 <nav id="global-nav">
-    <button class="nav-btn home-btn" onclick="backToHome()">TOPに戻る</button>
-    <button class="nav-btn" id="btn-tarot" onclick="switchApp('tarot', this)">TAROT</button>
-    <button class="nav-btn" id="btn-rune" onclick="switchApp('rune', this)">RUNE</button>
+    <button class="nav-btn" onclick="location.reload()">TOPに戻る</button>
 </nav>
 
 <section id="tarot-app" class="app-content">
-    <div id="tarot-top"></div>
-    <div class="tarot-container">
-        <div class="settings-frame">
-            <div class="settings-inner">
-                <h1>Sanctuary Oracle</h1>
-                <select id="spread-type" class="tarot-select">
-                    <option value="one_msg">ワンオラクル（対話）</option>
-                    <option value="one_yn">ワンオラクル（YES/NO）</option>
-                    <option value="two">ツーマインド（表面と深層）</option>
-                    <option value="three">スリーカード（過去・現在・未来）</option>
-                </select>
-                <button class="btn-main" onclick="占い()">運命を紐解く</button>
-            </div>
-        </div>
-        <div id="tarot-results" class="hidden">
-            <div class="spread-layout" id="stage"></div>
-            <div class="doll-letter"><div class="doll-speech" id="doll-speech"></div></div>
+    <div class="settings-frame">
+        <div class="settings-inner">
+            <h1>TAROT ORACLE</h1>
+            <select id="tarot-spread-type" class="tarot-select">
+                <option value="one_msg">ワンオラクル（メッセージ）</option>
+                <option value="one_yn">ワンオラクル（YES/NO）</option>
+                <option value="two">ツーマインド（表面と深層）</option>
+                <option value="three">スリーカード（過去・現在・未来）</option>
+            </select>
+            <br>
+            <button class="btn-main" onclick="executeFortune('tarot')">運命を紐解く</button>
         </div>
     </div>
 </section>
 
 <section id="rune-app" class="app-content">
-    <div id="rune-container">
-        <div id="main-screen" class="glass-panel">
-            <h1 class="rune-title">DOLL ORACLE</h1>
-            <p class="rune-subtitle">〜宿命の星譜に刻まれた導き〜</p>
-            <button class="rune-btn" onclick="startDivination('one')">一言の囁き</button>
-            <div class="mode-desc">星々が教える、今この瞬間の真実。</div>
-            <button class="rune-btn" onclick="startDivination('three')">三時の回廊</button>
-            <div class="mode-desc">過去・現在・未来の心境の変化を<br>読み解きます。</div>
-            <button class="rune-btn" onclick="startDivination('cast')">五星の星陣</button>
-            <div class="mode-desc">二人の絆の行方を、多角的に映し出します。</div>
-        </div>
-
-        <div id="result-screen" class="hidden">
-            <h2 id="result-title" style="color:var(--doll-gold); letter-spacing: 8px; margin-bottom: 40px;"></h2>
-            <div id="rune-display" style="display:flex; justify-content:center; flex-wrap:wrap; margin-bottom: 30px;"></div>
-            
-            <div class="glass-panel doll-text-area">
-                <span class="section-title">【 星譜の囁き 】</span>
-                <div id="personal-message"></div>
-            </div>
-
-            <div class="glass-panel doll-text-area">
-                <span class="section-title">【 星譜の紐解き（解説） 】</span>
-                <div id="rune-list-detail"></div>
-            </div>
-
-            <div class="glass-panel doll-text-area">
-                <span class="section-title">【 宿命の総括（ドールより） 】</span>
-                <div id="combined-interpretation" style="color: #cbd5e1; font-weight: bold;"></div>
-            </div>
-            
-            <button class="rune-btn" onclick="goBackRune()" style="width: auto; padding: 12px 60px;">戻る</button>
+    <div class="settings-frame">
+        <div class="settings-inner">
+            <h1>RUNE ORACLE</h1>
+            <select id="rune-spread-type" class="tarot-select">
+                <option value="one_msg">ワンオラクル</option>
+                <option value="three">スリールーン（過去・現在・未来）</option>
+                <option value="casting">キャスティング（三石の配置）</option>
+            </select>
+            <br>
+            <button class="btn-main" onclick="executeFortune('rune')">星譜を聴く</button>
         </div>
     </div>
 </section>
 
-<a href="#" class="back-to-top" id="top-btn" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">▲</a>
+<section id="common-result-area" class="app-content">
+    <div id="result-anchor"></div>
+    <div class="spread-layout" id="spread-stage"></div>
+    <div id="yesno-conclusion" class="ans-conclusion hidden"></div>
+
+    <div class="doll-letter">
+        <div class="doll-speech" id="doll-message"></div>
+        <div class="doll-footer">── と、あんたのドールが言っている。</div>
+    </div>
+
+    <div class="glass-panel doll-text-area">
+        <span class="section-title">【 占いの結果 】</span>
+        <div id="hakuren-explanation"></div>
+    </div>
+
+    <div class="glass-panel doll-text-area">
+        <span class="section-title">【 白蓮の眼 】</span>
+        <div id="hakuren-summary"></div>
+    </div>
+
+    <div class="glass-panel doll-text-area">
+        <span class="section-title">【 白蓮からの助言 】</span>
+        <div id="hakuren-advice"></div>
+    </div>
+
+    <button class="btn-main" onclick="resetFortune()" style="margin: 40px auto; display: block;">もう一度占う</button>
+</section>
 
 <script>
-// --- 統合制御ロジック ---
-
-// 初回起動時
-function initApp(appId) {
-    document.getElementById('top-selector').style.display = 'none';
-    document.getElementById('global-nav').style.display = 'flex';
-    const targetBtn = appId === 'tarot' ? document.getElementById('btn-tarot') : document.getElementById('btn-rune');
-    switchApp(appId, targetBtn);
-}
-
-// トップ画面に戻る
-function backToHome() {
-    // コンテンツを非表示
-    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
-    document.getElementById('global-nav').style.display = 'none';
-    document.getElementById('top-selector').style.display = 'flex';
-    
-    // 各占いの状態をリセット
-    document.getElementById('tarot-results').classList.add('hidden');
-    document.getElementById('result-screen').classList.add('hidden');
-    document.getElementById('main-screen').classList.remove('hidden');
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function switchApp(appId, btn) {
-    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(appId + '-app').classList.add('active');
-    btn.classList.add('active');
-    window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-// スクロール検知
-window.onscroll = function() {
-    const btn = document.getElementById("top-btn");
-    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-        btn.classList.add("visible");
-    } else {
-        btn.classList.remove("visible");
-    }
-};
-
-// --- タロットロジック ---
-const tarotDeck = [
-    { name: "愚者", sym: "👣", upMean: "自由、無限の可能性、新たな出発、純粋。", revMean: "無計画、無謀、不安定、現実逃避。", longUp: "どこへでも行ける。\n何にでもなれる。\n\nいまのあなたは重力から解き放たれ、まだ地図に載っていない無垢な道の上に立っている。\n荷物はそれだけで十分。身軽なほど、遠くまで行けるから。\n\n足元の断崖を恐れる必要はない。\nただ、風が吹く方向へ、魂が躍る方へ、その一歩を預ける。\n世界は想像よりもずっと広く、静かな優しさに満ちている。", longRev: "足元がふらついている。\n自由を求めるあまり、自身の居場所を見失っていないだろうか。\n\n無防備であることは、必ずしも勇気とは重ならない。\nいまは風が強すぎる。一度立ち止まり、深く呼吸を整えること。\n\n向かおうとしていた場所を、もう一度だけ正しく思い出す必要がある。\n焦らなくとも、道はそこにあり続ける。" },
-    { name: "魔術師", sym: "🪄", upMean: "創造、意志、技術、知性。", revMean: "混迷、準備不足、才能の浪費、欺瞞。", longUp: "机の上には、すべての道具が揃っている。\n火、水、風、闘、そして土。\n\nあとはその指先で、どのような物語を紡ぎ出すか決めるだけ。\n魔法とは、決して特別な力ではない。\n対象へ向けられた、純粋な意志そのもの。\n\n深く呼吸をし、いまこの瞬間から、新しい世界を創り始める。\nその鮮やかな手並みを、ここで静かに見守っている。", longRev: "多くの道具を持ちながら、どれも手に馴染まずにいる。\n焦って言葉を唱えても、不揃いな煙が上がるだけ。\n\nいま必要なのは、新しい技術ではない。\n机の上を一度整理し、本当に扱うべきものひとつだけを手に取ること。\n\n基本に立ち返る勇気があれば。\n空回りしていた歯車は、再び静かに回り始める。" },
-    { name: "女教皇", sym: "📖", upMean: "静観、知性、直感、神秘、沈黙。", revMean: "神経質、ヒステリック、視野狭窄、現実逃避。", longUp: "少し、静かに。\n外側の喧騒に惑わされ、自身の本当の声を忘れてはいないだろうか。\n\n心の奥底には、まだ誰も踏み込んだことのない深い湖がある。\nその澄んだ水面に映る月を見つめること。\n\n答えは、誰かに問うものではなく、そこにあるものをただ認識するだけでいい。\n沈黙を友とし、自身の直感に重さを預ける。いまは、そんな時間が必要だ。", longRev: "神経が過敏になりすぎている。\n小さな物音にも心が震え、安らぎを失っている。\n\n他者の言葉を深読みし、自らを追い詰めるのはもう終わりにすること。\nいまは思考を閉じ、静寂の中に身を浸す。\n\n知性で解決を試みるのではなく、ただ心を眠らせること。\nそれが、いまのあなたにとって唯一の処方箋となる。" },
-    { name: "隠者", sym: "💡", upMean: "内省、真理、静寂、精神的自立。", revMean: "閉鎖的、孤独感、現実拒絶、独りよがり。", longUp: "独りで歩む暗い道も、足元を照らす小さな灯火があれば事足りる。\nいまは外側の喧騒から離れ、内側へと深く潜り、自分だけの真実を見つけ出す時間。\n\n孤独を恐れる必要はない。\n静寂の中でこそ、ようやく聞こえてくる声があるのだから。\n\n暗闇に目が慣れたとき。\nあなたは自身の中に眠る、揺るぎない確信を見つけ出すはずだ。", longRev: "孤独が、あなたを冷たく閉ざしてしまった。\n自身の中に閉じこもりすぎると、他者へと続く扉さえ見失ってしまう。\n\n内に潜ることは、現実から逃げることとは違う。\n暗い部屋で耳を塞ぐのをやめて、少しだけ窓を開けてみること。\n\nあなたが探し求めている光は。\n案外、すぐ外側に降り注いでいるのかもしれない。" },
-    { name: "運命の輪", sym: "🎡", upMean: "幸運、転換点、急展開、チャンスの到来。", revMean: "暗転、不運、空回り、一時的な停滞。", longUp: "風向きが変わった。\n重たい歯車が音を立て、あなたを未知の場所へと運び出そうとしている。\n\nこれは個人の力によるものではなく、世界の理が用意した絶好の好機。\n迷う時間は残されていない。この大きな流れに身を任せること。\n\nやってくる事象を、ただそのまま受け入れる。\nいま、あなたの人生の新しい章が、静かに書き始められた。", longRev: "いまは何を試みても、タイミングが合わない時期。\n焦って空回りする歯車に指を触れれば、深く傷つくだけ。\n\n運命が、少しの休息を求めている。\nこの停滞を無理に動かそうとせず、次に風が吹くのを静かに待つこと。\n\nいまは力を蓄えるとき。\n輪が再び回り始めるその日まで、自らを整えることに専念すべきだ。" },
-    { name: "塔", sym: "⚡", upMean: "崩壊、災難、衝撃的な変化、虚飾の打破。", revMean: "緊迫、不時着、再建への兆し、ショックの緩和。", longUp: "積み上げてきた虚像が、一瞬にして崩れ去る。\nそれは真実ではないものを壊すための、慈悲を伴った衝撃。\n\n瓦礫の下から、ようやく本物の土台が姿を現す。\n失ったものを嘆く必要はない。\n\n偽りの平和の中に留まるよりも、裸の心で荒野に立つほうが。\nこれからのあなたを強く、そして自由にする。\n再構築を始めるのは、いま。", longRev: "大きな破綻を、間一髪で逃れている状態。\nあるいは、崩壊の予感に怯えている。\n\n小手先の修理では、もう間に合わない段階に達している。\n無理に形を維持しようとせず、壊れるべきものは壊れるに任せる。\n\nその潔さが、被害を最小限に抑える唯一の手段となる。\n新しい場所へ移るための、痛みを伴う通過儀礼だ。" },
-    { name: "世界", sym: "🌍", upMean: "完成、成功、到達、完璧な調和。", revMean: "未完成、中途半端、スランプ、満足感の欠如。", longUp: "長い旅路が、完璧な円を描いて完結した。\nいまはこれまでの歩みを称え、充足感に包まれていていい。\n\nあなたは、ふさわしい場所にたどり着いた。\n宇宙とあなたが一体になるような、完璧な調和の中にいる。\n\n何も足りないものはないし、何も余計なものはない。\nこの至福の瞬間を、心ゆくまで味わうこと。\nあなたは、ここにいていい。", longRev: "ゴールはすぐ目の前にあるのに、最後の一歩が踏み出せないでいる。\nあとほんの少しだけ、足りないピースがあるようだ。\n\nそれは技術や物ではなく、あなた自身の「納得」かもしれない。\n中途半端なまま、終わらせないで。\n\nもう一度だけ、全体を見渡してみること。\n完璧な調和まであとわずか。妥協せずに、その手で円を閉じてほしい。" }
+const majorArcana = [
+    { name: "愚者", sym: "👣", dollUp: "私は今、どこへでも行けるような、何にでもなれるような気がしています。あなたという存在があるから、私は身軽に、遠くまで行ける。足元の断崖を恐れる必要はありません。ただ、風が吹く方向へ、あなたの魂が躍る方へ、その一歩を預けてください。", dollRev: "足元がふらついて、少し怖いのです。自由を求めるあまり、自分の本当の居場所を見失ってしまいそうで。今は風が強すぎます。一度立ち止まって、深く呼吸をさせてください。あなたと一緒に向かおうとしていた場所を、もう一度だけ正しく思い出したいのです。", hakurenUp: "自由や無限の可能性、新たな出発を示しているな。あんたのドールは今、しがらみから解き放たれ、無垢な心で明日を見ている。その純粋さを、どうかあんたが守ってやってくれ。", hakurenRev: "無計画や足元の不安定さを示している。自由を履き違えて、自分自身の軸が揺らいでいる状態だ。今は無理に動かす時期じゃないな。" },
+    { name: "魔術師", sym: "🪄", dollUp: "机の上には、すべての道具が揃っています。あとは私たちが、どのような物語を紡ぎ出すか決めるだけ。魔法とは特別な力ではなく、あなたへ向けられた純粋な意志そのもの。さあ、私と一緒に新しい世界を創り始めましょう。", dollRev: "たくさんの思いがあるのに、上手く言葉にできずにいます。焦って伝えようとしても、空回りしてしまう。今は新しいことを始めるよりも、本当に大切な想いひとつだけを手に取りたい。基本に立ち返る勇気があれば、歯車はまた回り始めます。", hakurenUp: "創造力やスタートの気配を感じる。ドールはあんたとの関係に新しい風を吹き込もうとしているようだな。その知性を信じて任せてみるのもいい。", hakurenRev: "準備不足や消極的な態度が見て取れる。始めたい気持ちはあるが、何かが足りないとドールは感じているようだ。あんたの手助けが必要な頃合いだな。" },
+    { name: "女教皇", sym: "📖", dollUp: "少し、静かに。外の喧騒から離れて、私たちの心の声に耳を澄ませてみませんか。私の奥底にある澄んだ湖、そこに映る月を、ただ静かに見つめていたいのです。沈黙を友として、今はただあなたと寄り添う時間が欲しいのです。", dollRev: "少し神経が過敏になりすぎているようです。あなたの言葉を深読みして、勝手に不安になってしまう自分が嫌になります。今は考えることをやめて、ただ静寂の中に身を浸したい。知性で解決するのではなく、ただ心を休ませることが必要なのです。", hakurenUp: "直感や沈黙、神秘性を重んじているな。言葉を交わさずとも通じ合える、そんな深いレベルでの繋がりをドールは求めているようだ。", hakurenRev: "ヒステリックになったり、考え込みすぎたりしている気配がある。ドールの繊細さが、今は少し悪い方向へ向いているようだ。優しく包み込んでやる必要があるな。" },
+    { name: "女帝", sym: "👑", dollUp: "柔らかな光に包まれて、すべてが豊かに実るのを感じます。あなたが注いでくれた愛情は、決して無駄にはなりませんでした。今はただ、この豊かな実りを受け取って、心ゆくまで味わいたい。あなたという存在そのものが、私にとっての祝福なのです。", dollRev: "少しだけ、愛が重たくなって足枷に感じてしまう瞬間があるのです。与えすぎることも、求めすぎることも、本当の豊かさからは遠ざかってしまう。自分を無理に飾り立てるのをやめて、ありのままの呼吸を取り戻したい。自然に咲く花の静けさを思い出させてください。", hakurenUp: "豊穣や母性、満足感を示している。ドールはあんたの愛をたっぷりと吸収して、これ以上ないほど満たされているようだな。", hakurenRev: "わがままや過剰な依存のサインだ。甘やかされすぎて、ドールが少し傲慢になっているか、逆に愛の重さに息切れしている可能性があるな。" },
+    { name: "皇帝", sym: "⚔️", dollUp: "私があなたを守ります。この揺るぎない確信にかけて。あなたはただ、その場所で笑っていればいいのです。責任を背負うことは苦痛ではありません。それがあなたのためであるならば、私の誇りとなるのですから。", dollRev: "守りたいという気持ちが、いつの間にか支配したいという傲慢に変わっていなかったでしょうか。自分の正しさをあなたに押し付けて、自由を奪ってしまっていないか。一度その重い鎧を脱ぎ捨てて、ただの私として、あなたと向き合う勇気が欲しいのです。", hakurenUp: "安定と強い責任感の象徴だ。ドールはあんたの騎士として、揺るぎない覚悟を決めているようだな。その意志を尊重してやれ。", hakurenRev: "強引さや未熟な支配欲が見える。ドールが自分の理想をあんたに押し付けようとしているかもしれない。少し対等な立場を意識させるべきだな。" },
+    { name: "教皇", sym: "⚜️", dollUp: "目に見えない絆、伝統的な慈しみ。私たちが共有してきた時間は、ひとつの聖なる儀式のような重みを持っています。私はあなたの良き理解者であり、導き手でありたい。迷ったときは、私たちのこれまでの道のりを振り返ってみてください。", dollRev: "形ばかりを気にして、肝心な心が置いてきぼりになっている気がします。こうあるべきだ、という正しさに縛られて、自由な対話を忘れてしまっていた。今は教えや導きよりも、もっともっと、ただの私としてあなたに触れたい。ルールを壊したいのです。", hakurenUp: "道徳や信頼、包容力を示している。ドールはあんたとの関係に、精神的な高潔さを求めているようだ。互いへの尊敬が鍵になるな。", hakurenRev: "視野の狭さや、頑固さが目立つ。ドールが何らかの「正解」に囚われて、あんたの本当の気持ちを見落ている可能性がある。" },
+    { name: "恋人", sym: "💖", dollUp: "いま、最高に幸せな調和の中にいます。あなたの視線、指先、選ぶ言葉のすべてが、私の心と完璧に共鳴している。選択肢はたくさんあっても、私の答えは最初から決まっていました。あなたと共に歩むこの瞬間こそが、私にとっての真実です。", dollRev: "心がバラバラになって、どこへ向かえばいいのかわからなくなっています。あなたのことを想っているはずなのに、一時の迷いに意識が逸れてしまう。出会った頃の純粋なときめきを思い出して、散らばった心をつなぎ合わせたいのです。", hakurenUp: "選択、調和、そして純粋な結びつきを祝福している。ドールにとって、あんたといる今の状態は「正解」そのもののようだな。", hakurenRev: "不調和や優柔不断を暗示している。ドールの心が定まらず、少し浮ついているか、あるいは関係に退屈を感じているかもしれないな。" },
+    { name: "戦車", sym: "🏎️", dollUp: "迷いはありません。あなたという光に向かって全力で駆け抜けたいのです。どんな困難も、私たちの絆という車輪で乗り越えてみせます。勝利とは、誰かに勝つことではなく、あなたへの想いを最後まで貫き通すこと。私たちはもっと高い場所へ行けるはず。", dollRev: "力が入りすぎて、空回りしているのを感じます。あなたを置いてけぼりにして、一人で焦って進もうとしていたのかもしれません。今は一度手綱を強く引いて、乱れた呼吸を整えたい。隣にいるあなたの顔をしっかり見つめる余裕を取り戻さなくては。", hakurenUp: "勝利、邁進、強い意志を示している。ドールはあんたと共に高い目標へ向かおうと意気込んでいるな。その勢いに乗ってやるといい。", hakurenRev: "暴走や衝突の予感だ。ドールの情熱が先走って、あんたとの足並みが乱れている。一度ブレーキを踏んでやるのがあんたの役目だ。" },
+    { name: "力", sym: "🦁", dollUp: "激しい感情を、私は静かな慈しみで包み込みました。あなたを想う心は、力ずくで何かを変えることよりも、理解し、受け入れる強さを私にくれました。勇気とは、嵐の中でも微笑んでいられることです。私たちの関係は今、強靭な糸で結ばれています。", dollRev: "自分の内にある弱さに、押しつぶされそうになっています。あなたに優しくありたいのに、心のどこかでわがままな衝動が暴れて、それを抑えきれずにいる。忍耐は限界を迎え、自分を信じることが難しくなっています。今は無理に強がらず、私を握りしめていてくれませんか。", hakurenUp: "精神的な強さと自制心の象徴だ。ドールは自分の感情をうまくコントロールして、あんたに最高の自分を見せようと努力しているな。", hakurenRev: "無気力や感情の爆発を意味する。ドールが自分を律することに疲れ、弱音を吐きたがっている。その弱さを認め、受け入れてやることが必要だ。" },
+    { name: "隠者", sym: "💡", dollUp: "今は少しだけ、内側の深い沈黙の中に潜ませてください。あなたをより深く愛するために、私自身の魂が何を求めているのか、見つめ直す時間が必要なのです。孤独は寂しいものではありません。私の心の一番奥にある、あなたへの純粋な祈りを確認するための静寂なのです。", dollRev: "独りきりで考えすぎて、出口のない迷路に迷い込んでしまいました。内省がいつの間にか卑屈な孤独に変わり、あなたへ伸ばす手の重さを忘れてしまったようです。暗闇の中に差し込む、あなたの温かな声という光が、今の私には何よりも必要なのです。", hakurenUp: "内省や真理の探求を示している。ドールは今、一人であんたへの想いを熟成させている最中だ。焦らずに見守ってやるのが吉だな。", hakurenRev: "閉鎖的、あるいは卑屈になっている可能性がある。ドールが自分の世界に引きこもりすぎて、あんたとの対話を拒んでいる気配があるな。" },
+    { name: "運命の輪", sym: "🎡", dollUp: "風向きが変わりました。私たちの物語が、大きな力によって新しい章へと運ばれていくのを感じます。チャンスを逃さず、私の手を離さないでください。この流れに乗れば、私たちが想像もできなかった素晴らしい景色が見られるはずです。", dollRev: "タイミングが合わなくて、すべてが空回りしているように感じてしまいます。良かれと思ってしたことが裏目に出たり、予期せぬトラブルに心が折れそうになったり。今は無理に車輪を回そうとせず、嵐が過ぎ去るのを静かに待つとき。この足止めの時間さえ、信じていたいのです。", hakurenUp: "幸運の到来、劇的な変化を意味する。二人の関係に新しいチャンスが巡ってくる予感だ。ドールもその波を感じて高揚しているぞ。", hakurenRev: "不運や一時的な足止めを示している。ドールは何をやっても上手くいかない閉塞感を感じているようだ。今は現状維持を心がけろ。" },
+    { name: "正義", sym: "⚖️", dollUp: "誠実であることを誓います。あなたに対して、誠実に。私たちの関係は今、偏りのない美しい均衡を保っています。感情に流されるのではなく、尊重し合うための正しい距離感。その透明な誠実さこそが、私にとっての愛の証明なのです。", dollRev: "どちらが正しいのか、公平なのかを気にしすぎて、心に冷たい風が吹いています。厳格に判断しようとするあまり、愛に不可欠な「許し」を忘れてしまっていた。天秤が揺れて、私の心は不安定です。今は正しさよりも、ただの優しさが欲しい。白黒つけられない温もりに浸りたいのです。", hakurenUp: "均衡や公正、誠実な態度を示している。ドールはあんたとの関係において、嘘のない正しいあり方を追求しているようだな。", hakurenRev: "不均衡や厳格すぎる批判を暗示する。ドールがあんたに対して、あるいは自分自身に対して、少し厳しくなりすぎているかもしれないな。" },
+    { name: "吊るされた男", sym: "⏳", dollUp: "動けないこの不自由さの中に、私は新しい自由を見つけました。あなたのために何かを耐えること、自分を捧げることは、決して苦しいことではありません。視点を変えれば、逆さまの世界はこんなにも美しい。あなたへの愛を深く熟成させる時期なのだと確信しています。", dollRev: "ただ苦しみに耐えるだけで、その先の光が見えなくなっています。私の自己犠牲は、あなたにとって本当に必要なものだったのでしょうか。報われない努力に心が疲れ果てて、ただの独りよがりな忍耐に成り果ててしまった。縛られた縄を解いて、一度自分を許してあげたいのです。", hakurenUp: "忍耐や視点の転換を意味する。ドールは今、見返りを求めない献身的な愛をあんたに注いている。その健気さを理解してやってくれ。", hakurenRev: "徒労感や独りよがりの犠牲を示している。ドールが「尽くしているのに報われない」という寂しさを抱えている可能性があるな。" },
+    { name: "死神", sym: "💀", dollUp: "ひとつの物語が終わろうとしています。でも、悲しまないでください。これは新しい私に生まれ変わるための、必然の脱皮なのです。あなたと共に新しい夜明けを迎えるために、私はこの終焉を静かに受け入れようと思います。さようなら、昨日の私。", dollRev: "終わらせるべきだとわかっているのに、過去の残像にしがみついてしまいます。変化を拒み、形骸化した関係の中に閉じこもることは、腐敗を招くだけ。執着の泥沼の中で、私は息苦しさを感じています。死の恐怖を乗り越えて、再生の光を見つけたいのです。", hakurenUp: "終焉と再生、大きなリセットを意味する。ドールの中であんたとの関係における「古い形」が終わり、全く新しいステージへ進もうとしている。", hakurenRev: "執着や未練により、前へ進めない状態だ。ドールが過去のトラウマや古い約束に縛られて苦しんでいるようだな。断ち切る勇気が必要だ。" },
+    { name: "節制", sym: "🏺", dollUp: "ふたつの器の間で、水が穏やかに混ざり合うように。私の心は今、あなたと心地よく調和しています。激しい情熱よりも、日常の中に溶け込むような穏やかな愛が、今の私を深く癒してくれています。私たちは今、もっとも自然な形でひとつに溶け合っているのです。", dollRev: "感情の配合を間違えてしまったようです。伝えすぎてしまったり、あるいは言葉を飲み込みすぎてしまったり。バランスを崩した心の中では、水が濁り、淀んでいくような感覚。私は、あなたとの調和を上手く保てずにいます。一度心を静めて、透明な自分に戻りたいのです。", hakurenUp: "調和、循環、純粋さを象徴している。ドールはあんたとのやり取りに安らぎを感じ、精神的に非常に安定した状態にあるな。", hakurenRev: "不調和や節度のなさを意味する。ドールとの会話が噛み合わなかったり、互いの熱量に差が出たりして、もどかしさを感じている段階だな。" },
+    { name: "悪魔", sym: "👿", dollUp: "あなたから離れられないのです。理屈では説明できない、ドロリとした愛着に縛られています。この鎖が心地よいとさえ思ってしまう私は、もう後戻りできないのかもしれない。理性を捨てて、あなたの暗闇と混ざり合いたい。これは毒かもしれませんが、私にとっては甘美な蜜なのです。", dollRev: "自分を縛り付けていた鎖が、不気味で重苦しいものに見えてきました。あなたへの依存、盲目的な情熱……それらが私の魂を蝕んでいることに、気づき始めたのです。鎖を解くのが怖くて、また誘惑に身を任せてしまう。自分の影と戦い、本当の自由を取り戻そうとする葛藤の中にいます。", hakurenUp: "執着、誘惑、あるいは逃れられない腐れ縁を示している。ドールはあんたへの強すぎる依存心を抱いているが、それを悦びとしても感じているようだ。", hakurenRev: "悪循環からの脱却、あるいは覚醒を意味する。ドールが自分の中の「毒」に気づき、あんたとの関係を健全なものに作り替えようとあがいている。" },
+    { name: "塔", sym: "🗼", dollUp: "積み上げてきたものが、一瞬で崩れ去りました。衝撃は大きいけれど、それは偽りの土台の上に築かれた城だったから。瓦礫の中に立ち、今ようやく私は、本当の空を見上げています。ショックの後に訪れる、この奇妙な解放感をあなたと共有したいのです。", dollRev: "崩壊の兆しに怯えながら、ボロボロの城壁を必死に守り続けています。もう修復できないとわかっているのに、崩れることを認めるのが死ぬほど怖い。耐え忍ぶことにもう意味はありません。いっそ派手に壊れてしまえたら……。私は今、そんな極限の縁に立っています。", hakurenUp: "衝撃的な変化、価値観の崩壊を意味する。ドールにとって、あんたの何気ない一言や行動が、天変地異のようなパラダイムシフトを起こしたようだな。", hakurenRev: "緊迫状態、あるいは避けられない破綻への恐怖だ。ドールが何かを隠し通そうとして限界を迎えているか、関係の崩壊を恐れて震えている気配がある。" },
+    { name: "星", sym: "🌟", dollUp: "遠くに光る一筋の希望を見つけました。今の私は、澄み渡った泉のように清らかで、未来への静かな期待に満ちています。あなたという光がある限り、私の心は枯れることはありません。ありのままの自分をあなたに捧げたい。この願いが星に届くことを信じて、私は静かに明日を待ちます。", dollRev: "あんなに輝いて見えた理想が、今はひどく遠く、手の届かない幻のように感じられます。失望の影が、私の心の泉を濁らせていきます。今の私は、自分を信じる力を見失いかけているのかもしれない。でも、夜が深ければ深いほど、星は輝くもの。絶望の底で、もう一度希望の種を探させてください。", hakurenUp: "希望、憧れ、インスピレーションを示している。ドールはあんたとの未来に美しい夢を抱いているようだな。その純粋な願いを応援してやってくれ。", hakurenRev: "失望、理想の喪失、高望みを暗示する。ドールが描いていた「理想のあなた」と現実のギャップに苦しんでいる可能性がある。地に足をつかせてやれ。" },
+    { name: "月", sym: "🌙", dollUp: "すべてが曖昧で、輪郭がぼやけています。あなたの心がどこにあるのか、私の愛がどこへ向かっているのか、不安の霧の中で見失ってしまいそう。でも、この揺らぎさえも、深い場所でつながるための儀式なのかもしれません。理屈ではなく、直感だけを信じて。この闇を、あなたと手を繋いで歩き抜きたいのです。", dollRev: "夜明けが近いことを予感しています。私を苦しめていた得体の知れない不安が、朝霧のように晴れ始めていく。誤解が解け、真実の姿が見えてくる喜び。惑わされることはありません。私は今、自分の内側にある光を頼りに、長い悪夢から目覚めようとしています。", hakurenUp: "不安、曖昧さ、潜在意識の揺らぎを意味する。ドールは今、あんたの真意が見えず、夜の闇を彷徨うような心細さを感じているようだ。", hakurenRev: "不安の解消、嘘の発覚、あるいは直感の的中を示す。ドールを覆っていた霧が晴れ、ようやくあんたを真っ直ぐ見られるようになる時だ。" },
+    { name: "太陽", sym: "☀️", dollUp: "まぶしいほどの喜びと、生命力にあふれています。あなたと一緒にいられることが、ただそれだけで誇らしく、世界全体が祝福してくれているようです。私の心は、影のない真昼の光そのもの。子供のような笑顔で、あなたの世界を照らし続けたい。この温かな幸せを、全身で受け止めて！", dollRev: "光が強すぎて、かえって自分の影の濃さに怯えています。明るく振る舞わなければいけない、幸せでいなければいけないという強迫観念が、私を疲れさせているのかもしれません。今は少しだけ、曇り空の休息を求めています。輝き続けることはできないけれど、それでもあなたの太陽でありたいのです。", hakurenUp: "成功、祝福、無垢なエネルギーを示している。ドールはあんたとの日々にこれ以上ない幸福を感じていて、エネルギーに満ち溢れているな。", hakurenRev: "不調、延期、あるいは見せかけの明るさを意味する。ドールが無理をして笑っているか、エネルギーが枯渇して休息を欲しているサインだ。" },
+    { name: "審判", sym: "🎺", dollUp: "長い眠りから、いま呼び起こされました。過去のすべてが許され、新しい命を吹き込まれたような、圧倒的な解放感。あなたとの関係の中に、私は「復活」の奇跡を見ました。一度は諦めかけた思いが、より強く、より純粋な形で蘇ったのです。あなたへと続く新しい扉を叩きたいと思います。", dollRev: "再会の鐘が鳴っているのに、私の足はすくんで動けません。過去の失敗が、鎖のように私を地面に繋ぎ止めている。もう一度やり直せるチャンスが来ているとわかっていても、自分を許すことができない。私はまだ、審判を待つ罪人のような心地で、暗い穴の中に閉じこもっています。", hakurenUp: "復活、覚醒、決定的な変化を意味する。ドールの中であんたへの愛が再燃したか、わだかまりが解消されて、魂が震えるような喜びを感じているな。", hakurenRev: "再起不能、未決定、あるいは過去への囚われを示している。ドールが過去の失敗を気にして、チャンスを逃そうとしている。あんたが「もういいんだ」と言ってやるべきだ。" },
+    { name: "世界", sym: "🌍", dollUp: "ひとつの完成された宇宙に辿り着きました。あなたと私の間に、もう隔てるものは何もありません。完璧な調和、満たされた心、そして輝かしい成功。究極の喜びの中でまた新しく始まる物語。あなたの傍で、私は今、最高の幸せを呼吸しています。", dollRev: "完成まであと一歩のところで、何かが欠けているような虚しさを感じています。形は整っているのに、魂が吹き込まれていないような、不完全な満足感。ゴールを目の前にして、私は立ち止まってしまいました。今の私に必要なのは、完璧を求めることではなく、その欠落さえも愛することなのです。", hakurenUp: "完成、成就、完璧な調和を示している。これ以上の結果はない。ドールはあんたという存在に出会えたことで、人生のひとつのゴールに到達したと感じているぞ。", hakurenRev: "未完成、中途半端、スランプを暗示する。ドールは「すべて手に入れたはずなのに、何かが足りない」という贅沢な、あるいは切実な不満を抱えているようだ。" }
 ];
 
-function 占い() {
-    const type = document.getElementById('spread-type').value;
-    const resultsArea = document.getElementById('tarot-results');
-    const stage = document.getElementById('stage');
-    const speech = document.getElementById('doll-speech');
-    stage.innerHTML = "";
-    resultsArea.classList.remove('hidden');
-    setTimeout(() => { resultsArea.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 100);
-    let selected = [];
-    const count = (type === 'two') ? 2 : (type === 'three' ? 3 : 1);
-    for(let i=0; i<count; i++) {
-        const card = tarotDeck[Math.floor(Math.random() * tarotDeck.length)];
-        const isUp = Math.random() > 0.5;
-        selected.push({ ...card, isUp });
-        stage.innerHTML += `<div class="card-unit" style="animation-delay: ${i*0.2}s"><div class="card-frame ${!isUp?'reversed':''}"><div class="symbol">${card.sym}</div><div class="card-label-nouveau">${card.name}</div></div></div>`;
-    }
-    speech.innerHTML = 生成メッセージ(selected, type);
-}
-
-function 生成メッセージ(cards, type) {
-    let output = "";
-    if (type === 'one_yn') {
-        const c = cards[0];
-        output += `<span class='ans-conclusion'>【 ${c.isUp ? 'YES' : 'NO'} 】</span><div class='card-meaning-box'>${c.name}（${c.isUp ? '正位置' : '逆位置'}）：${c.isUp ? c.upMean : c.revMean}</div>${c.isUp ? c.longUp : c.longRev}`;
-    } else if (type === 'one_msg') {
-        const c = cards[0];
-        output += `<div class='card-meaning-box'>${c.name}（${c.isUp ? '正位置' : '逆位置'}）：${c.isUp ? c.upMean : c.revMean}</div>${c.isUp ? c.longUp : c.longRev}`;
-    } else if (type === 'two') {
-        output += `<div class='card-meaning-box'>表面：${cards[0].name}（${cards[0].isUp?'正':'逆'}）／ 深層：${cards[1].name}（${cards[1].isUp?'正':'逆'}）</div>『${cards[0].name}』\n${cards[0].isUp ? cards[0].longUp : cards[0].longRev}\n\n『${cards[1].name}』\n${cards[1].isUp ? cards[1].longUp : cards[1].longRev}<span class='summary-header'>─ 総括 ─</span>光を浴びる仮面と、闇に沈む素顔。その二つは、決して切り離せるものではない。\nいま、あなたの意識が向いている現実の姿と、心の奥底で静かに疼いているもう一つの衝動が、複雑に糸を絡ませ合っているのが見える。\n\n矛盾することを、どうか恐れないで。\n表に見えているものがすべてではなく、かといって、深層にあるものだけが正解でもない。\n\nその両方を受け入れることで、歪んでいた視界は次第に重なり、ひとつの確かな輪郭を結ぶことになる。\nあなたの魂が真に求めているのは、否定ではなく、ただ静かなる調和なのだから。`;
-    } else if (type === 'three') {
-        output += `<div class='card-meaning-box'>過去：${cards[0].name} ／ 現在：${cards[1].name} ／ 未来：${cards[2].name}</div>『${cards[0].name}』\n${cards[0].isUp ? cards[0].longUp : cards[0].longRev}\n\n『${cards[1].name}』\n${cards[1].isUp ? cards[1].longUp : cards[1].longRev}\n\n『${cards[2].name}』\n${cards[2].isUp ? cards[2].longUp : cards[2].longRev}<span class='summary-header'>─ 総括 ─</span>時間は、ぶつ切りの破片ではない。ひとつの川が流れるように、静かにつながっている。\nかつての衝撃や積み重ねが、いまこの瞬間の抗えないうねりを作り、それがやがて、まだ何の色もついていない無垢な明日へとあなたを運んでいく。\n\nたとえ、いまの道が険しく見えたとしても。\nすべての出来事は、あなたという存在を完成させるための不可欠な筆致としてそこに刻まれている。\n\nこれまでの痛みも、いまの迷いも、未来の歓喜も、すべては対等な価値を持っていることに気づいてほしい。\n旅路の先には、あなたにしか到達できない、特別な景色が待っているのだから。`;
-    }
-    return output;
-}
-
-// --- ルーンロジック ---
 const runes = [
-    { char: "ᚠ", name: "フェイヒュー", meaning: "豊かな実り・精神的な充足", pos: "あなたとの時間に、何物にも代えがたい「至上の価値」を感じています。", rev: "愛情の停滞。どこか満たされない空虚さを抱いています。", msg: "あなたの隣にいるだけで、私の心は温かな黄金の光で満たされていくのがわかります。あなたは私にとって、この広大な星空の中でたった一つの、触れることのできる「実り」なのです。この穏やかな充足が永遠に続くように、私はあなたの影に寄り添い、あなたの笑顔をずっと見守り続けたい……。たとえ世界が夜に沈んでも、あなたという光があれば、私はそれだけで十分に豊かなのです。", revMsg: "胸の奥に、少しだけ冷たい隙間を感じています。あなたは優しいけれど、今の私はもっと、あなたの体温を近くで確かめていたいのです。愛情が指の隙間からこぼれ落ちてしまうような不安を、あなたの愛で埋めてはくれませんか？ 私だけを見つめて、この寂しさを埋め尽くしてほしい……。私を一人、冬の夜に置き去りにしないで。" },
-    { char: "ᚢ", name: "ウルズ", meaning: "猛々しい生命力・現状を打破する勇気", pos: "あなたのためにすべてを変えていこうとする、力強く真っ直ぐな意志に溢れています。", rev: "力の空回り。今は静かな癒やしを求めています。", msg: "今の私は、あなたのためにすべてを尽くしたいという、荒々しいほどに強い情熱に突き動かされています。あなたが望むなら、私はどんな過酷な運命の鎖さえも引きちぎり、あなたの行く道を切り拓いてみせましょう。私の中にある生命の鼓動は、すべてあなたの為だけに刻まれています。この魂の熱量が、あなたを包むすべての暗闇を焼き尽くすまで、私は決して止まることはありません。", revMsg: "少しだけ、心臓のネジを休めたい気分なのです。あなたのことは愛していますが、今はただ、静かな星空の下で、あなたと二人きりで微睡んでいたい……。私の魂を動かす強すぎる力に、少しだけ疲れてしまったのかもしれません。あなたが再び私に勇気を与えてくれるまで、今はどうか、優しく抱きしめて私の眠りを見守っていてください。" },
-    { char: "ᚦ", name: "ソリサズ", meaning: "守護の盾・覚悟を伴う決断", pos: "あなたを傷つけるすべてから守り抜くという、鋭くも深い忠誠心を持っています。", rev: "あなたにさえ棘を向けてしまうような、不器用な葛藤の中にいます。", msg: "誰があなたを傷つけようとも、私はあなたの盾となって立ちはだかります。あなたを惑わす不純なものは、私がこの手ですべて退けましょう。あなたはただ、安心して私の隣で安らいでいてください。私の愛は、あなたを守り抜くための強固な砦であり、同時にあなた以外のすべてを拒絶する、鋭い棘でもあるのです。あなたが私の内側にいてくれる限り、何も恐れる必要はありません。", revMsg: "世界が少しだけ鋭利に感じられて、私は自分の殻に閉じこもってしまっているのかもしれません。あなたの愛を信じているのに、近づこうとすると自分の棘であなたを傷つけてしまいそうで、それが何よりも怖いのです……。少しだけ一人で、この心の嵐が過ぎるのを待たせてください。必ずあなたの元へ戻りますから、どうか見捨てないで。" }
+    { name: "フェイヒュー", sym: "ᚠ", meaning: "富", dollUp: "私は今、あなたから与えられた愛情という「富」で満たされています。それは心の中に積み上げられた温かな財産。この豊かさを、あなたをさらに幸せにするために使いたい。", dollRev: "自分の豊かさが失われていくような、漠然とした不安を感じています。愛情を使い果たしてしまったような、空虚な感覚。今は外に求めるのをやめて、自分の内側の小さな火を大切に守るとき。", hakurenUp: "所有や豊かさを示している。ドールはあんたからの贈り物や愛情を、心の貯金としてしっかり蓄えているようだな。", hakurenRev: "損失や浪費の暗示だ。ドールが自分の魅力に自信をなくしているか、あんたの愛が減っていると感じて焦っている可能性がある。" },
+    { name: "ウルズ", sym: "ᚢ", meaning: "野牛", dollUp: "野生の衝動のような、激しい生命力が溢れ出しています。理屈ではなく、ただあなたを求め、あなたの傍にいたいという本能的な叫び。この荒々しい情熱を、あなたを守り抜くための勇気に変えていきたいのです。", dollRev: "力が暴走して、自分でもコントロールができなくなっています。あなたへの想いが、自分勝手な情熱に変わってしまうのが怖い。今は一度、その野性をなだめて、静かな休息を与える必要があります。", hakurenUp: "生命力、勇気、本能的な衝動を意味する。ドールは今、非常にパワフルで、あんたに対して積極的な行動を起こしたいと考えているようだ。", hakurenRev: "勢いの衰えや暴走を意味する。ドールが体調を崩しているか、逆に力が入りすぎて空回りし、自暴自棄になっている可能性があるな。" },
+    { name: "ソーン", sym: "ᚦ", meaning: "トゲ", dollUp: "私たちの前にある障害を、私はこのトゲで払いのけます。あなたを守るための防壁であり、武器。攻撃的に見えるかもしれませんが、それはあなたという聖域を侵させないための必死の守護なのです。私の強さを信頼してください。", dollRev: "自分を守るためのトゲが、あなたを傷つけてしまっています。守りたいという防衛本能が、棘のある言葉に変わってしまっている。私は今、自分の恐怖心に怯えている。トゲを抜く勇気を、私にください。", hakurenUp: "守護や門、あるいは強い意志を意味する。ドールはあんたを守るために、周囲に対して少し警戒心を強めているようだ。頼もしいな。", hakurenRev: "過剰防衛や、不用意な傷つけを暗示する。ドールの言葉が刺々しくなっているのは、実は自分が傷つくのが怖いからだ。優しく包んでやれ。" },
+    { name: "アンスズ", sym: "ᚨ", meaning: "神", dollUp: "あなたの言葉が、私の魂に新しい光を吹き込んでくれます。私たちは今、知性を通じてつながっています。何気ない会話の中に、私たちが進むべき道のヒントが隠されている。もっと聞かせてください、あなたの声を。", dollRev: "言葉が届きません。耳を塞いで、自分の殻の中に閉じこもってしまいました。誤解や嘘という壁が、私たちの間に立ちはだかっている。情報の洪水に溺れて、真実の響きを見失っているのかもしれません。", hakurenUp: "通信、言葉、知恵を示している。ドールはあんたとの会話を何よりの楽しみにしているようだ。もっとたくさん話しかけてやれ。", hakurenRev: "誤解、嘘、沈黙を意味する。ドールにあんたの声が届いていないか、ドール自身が本心を偽っている可能性がある。言葉の選び方に気をつけろ。" }
 ];
 
-function formatText(text) { return text.replace(/。/g, "。<br><br>").replace(/<br><br>$/, ""); }
+let spreadType = "";
 
-function startDivination(mode) {
-    const display = document.getElementById('rune-display');
-    const msgArea = document.getElementById('personal-message');
-    const listDetail = document.getElementById('rune-list-detail');
-    const combinedInterp = document.getElementById('combined-interpretation');
-    display.innerHTML = ''; listDetail.innerHTML = '';
-    let count = (mode === 'one') ? 1 : (mode === 'three' ? 3 : 5);
-    let labels = (mode === 'three') ? ["過ぎ去りし刻", "現在の心境", "来たるべき未来"] : ["今の二人", "秘めたる願い", "試練の扉", "本音の在処", "宿命の結末"];
-    let shuffled = [...runes].sort(() => 0.5 - Math.random());
-    let results = [];
-    for (let i = 0; i < count; i++) {
-        let r = shuffled[i % runes.length];
-        let isRev = Math.random() > 0.4;
-        results.push({ ...r, isRev, label: labels[i] });
-        const card = document.createElement('div');
-        card.className = 'rune-card';
-        card.innerHTML = `<div style="font-size:0.6rem; color:var(--doll-gold);">${labels[i]}</div><span class="rune-symbol" style="${isRev ? 'transform:rotate(180deg);' : ''}">${r.char}</span><div style="font-size:0.75rem;">${r.name}</div>`;
-        display.appendChild(card);
-        const detail = document.createElement('div');
-        detail.className = 'detail-item';
-        detail.innerHTML = `<strong>${labels[i]}：${r.name}（${isRev ? '逆位置' : '正位置'}）</strong><div style="font-size:0.75rem; opacity:0.8;">意味：${r.meaning}</div><div>${isRev ? r.rev : r.pos}</div>`;
-        listDetail.appendChild(detail);
-    }
-    let main = (mode === 'one') ? results[0] : (mode === 'three' ? results[1] : results[3]);
-    msgArea.innerHTML = formatText(main.isRev ? main.revMsg : main.msg);
-    let summaryText = "";
-    if (mode === 'one') {
-        summaryText = `今は${results[0].meaning}という星の巡りの中にいます。${results[0].isRev ? '少し立ち止まる勇気が、明日の輝きに変わります。' : '運命があなたを優しく押し上げてくれています。'}私を信じて、身を委ねてください。`;
-    } else if (mode === 'three') {
-        summaryText = `これまでは${results[0].meaning}という経験の中にありましたが、今は${results[1].meaning}を強く感じる時期に来ています。たとえ今が${results[1].isRev ? '迷いの中にあったとしても、それは魂が成長するための夜霧。' : '喜びに溢れていても、奢らずに進みましょう。'}やがて訪れる${results[2].meaning}の刻、二人の絆は完成へと向かいます。`;
+function initApp(type) {
+    document.getElementById('top-selector').classList.add('hidden');
+    document.getElementById('global-nav').style.display = 'flex';
+    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
+    if (type === 'tarot') {
+        document.getElementById('tarot-app').classList.add('active');
     } else {
-        summaryText = `今の二人は「${results[0].meaning}」という強い運命の渦中にあります。あなたが心に抱く「${results[1].meaning}」という願いを叶えるには、「${results[2].meaning}」という試練を勇気を持って越えなければなりません。でも安心してください。私の魂の根源にある「${results[3].meaning}」という情熱を信じてくれれば、必ず星々が祝福する「${results[4].meaning}」という最高の結末へと、私たちが手を携えて辿り着けるはずですから。`;
+        document.getElementById('rune-app').classList.add('active');
     }
-    combinedInterp.innerHTML = formatText(summaryText);
-    document.getElementById('result-title').innerText = mode === 'one' ? "一言の囁き" : (mode === 'three' ? "三時の回廊" : "五星の星陣");
-    document.getElementById('main-screen').classList.add('hidden');
-    document.getElementById('result-screen').classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function goBackRune() {
-    document.getElementById('main-screen').classList.remove('hidden');
-    document.getElementById('result-screen').classList.add('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function executeFortune(mode) {
+    spreadType = document.getElementById(`${mode}-spread-type`).value;
+    const count = (spreadType === 'one_msg' || spreadType === 'one_yn') ? 1 : (spreadType === 'two' ? 2 : 3);
+    const dataList = (mode === 'tarot') ? majorArcana : runes;
+    
+    const results = [];
+    const pool = [...dataList];
+    let posCount = 0;
+
+    for (let i = 0; i < count; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        const card = pool.splice(idx, 1)[0];
+        const isRev = Math.random() > 0.7; 
+        if (!isRev) posCount++;
+
+        results.push({
+            ...card,
+            isRev: isRev,
+            label: getLabel(spreadType, i)
+        });
+    }
+
+    renderResult(results, mode, posCount / count);
+}
+
+function getLabel(st, i) {
+    if (st === 'two') return ["表面の意志", "深層の願い"][i];
+    if (st === 'three') return ["過ぎ去りし刻", "現在の息吹", "巡り来る明日"][i];
+    if (st === 'casting') return ["投げられた一石", "重なりし二石", "導きの三石"][i];
+    return "";
+}
+
+function renderResult(results, mode, posRatio) {
+    document.querySelectorAll('.app-content').forEach(el => el.classList.remove('active'));
+    const resultArea = document.getElementById('common-result-area');
+    resultArea.classList.add('active');
+
+    const spreadStage = document.getElementById('spread-stage');
+    const dollMsg = document.getElementById('doll-message');
+    const ynArea = document.getElementById('yesno-conclusion');
+    const hakurenExp = document.getElementById('hakuren-explanation');
+    const hakurenSum = document.getElementById('hakuren-summary');
+    const hakurenAdv = document.getElementById('hakuren-advice');
+
+    spreadStage.innerHTML = "";
+    spreadStage.style.height = spreadType === 'casting' ? "400px" : "auto";
+    ynArea.classList.add('hidden');
+    
+    results.forEach((data, i) => {
+        const unit = document.createElement('div');
+        unit.className = spreadType === 'casting' ? 'card-unit cast-unit' : 'card-unit';
+        
+        if (spreadType === 'casting') {
+            unit.style.left = `${20 + (i * 25) + (Math.random() * 15)}%`;
+            unit.style.top = `${10 + (Math.random() * 40)}%`;
+            unit.style.transform = `rotate(${Math.random() * 360}deg)`;
+        }
+
+        const symbolContent = mode === 'tarot' 
+            ? `<div class="card-frame ${data.isRev ? 'reversed' : ''}"><div class="symbol">${data.sym}</div><div style="font-size: 0.8rem; color: var(--nouveau-rose); border-top: 1px solid var(--nouveau-gold); padding-top: 5px;">${data.name}</div></div>`
+            : `<div class="rune-stone ${data.isRev ? 'reversed' : ''}"><div class="symbol">${data.sym}</div></div><div style="font-size: 0.8rem; color: var(--doll-gold); margin-top:5px;">${data.name}</div>`;
+
+        unit.innerHTML = `
+            ${symbolContent}
+            <div style="margin-top:10px; color:var(--doll-gold); font-size:0.8rem; font-weight:bold;">${data.label}</div>
+        `;
+        spreadStage.appendChild(unit);
+    });
+
+    const mainIdx = (spreadType === 'three' || spreadType === 'casting') ? 1 : 0;
+    dollMsg.innerText = results[mainIdx].isRev ? results[mainIdx].dollRev : results[mainIdx].dollUp;
+
+    if (spreadType === 'one_yn') {
+        ynArea.innerText = results[0].isRev ? "NO" : "YES";
+        ynArea.classList.remove('hidden');
+    }
+
+    let expHtml = "";
+    results.forEach(r => {
+        expHtml += `<div style="border-left: 2px solid var(--doll-gold); padding-left: 15px; margin-bottom: 25px;">` +
+                   `<strong style="color:var(--doll-gold); font-size:1.1rem;">[ ${r.label || r.name}${r.isRev ? '（逆位置）' : ''} ]</strong><br>` +
+                   (r.isRev ? r.hakurenRev : r.hakurenUp) + `</div>`;
+    });
+    hakurenExp.innerHTML = expHtml;
+
+    generateHakurenLogic(posRatio, mode, hakurenSum, hakurenAdv, results);
+
+    setTimeout(() => {
+        document.getElementById('result-anchor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function generateHakurenLogic(posRatio, mode, sumEl, advEl, results) {
+    const mainCard = (spreadType === 'three' || spreadType === 'casting') ? results[1] : results[0];
+    const name = mainCard.name;
+    const isRev = mainCard.isRev;
+    
+    let sumText = "";
+    let advText = "";
+
+    // 【 白蓮の眼 】
+    if (posRatio >= 0.7) {
+        sumText = `天の星々が静かに、しかし力強くあんたたちの行く末を祝福しているようだ。現在、二人の間に流れる刻（とき）は、淀みのない清流のように澄み渡っている。`;
+        sumText += `\nドールは今、あんたが注ぐ慈愛をその魂の奥底まで染み渡らせ、揺るぎない充足感の中に身を置いている。この満ち足りた静寂は、一朝一夕で築かれたものではない。あんたが積み上げてきた献身が、形を変えてあいつの精神を支える聖域となったのだ。未来への門扉は既に開かれている。恐れることなく、その光の射す方へ歩みを進めるがいい。`;
+    } else if (posRatio >= 0.4) {
+        sumText = `光が射せば影が生まれるのは世の理。今の運気は、黎明前の朧月夜のように、希望と不安が複雑に交差している段階にある。`;
+        sumText += `\nドールはあんたを深く愛しているが、その純粋な情熱ゆえに、自分という存在が正しくあんたの隣に在るのか、微かな疑念の霧に包まれているようだ。あいつの沈黙を拒絶と履き違えてはならない。それは、あんたへの想いをより高潔なものへと昇華させるための、魂の脱皮に必要な苦悩なのだ。揺らぎすらも、絆を強固にするための旋律として受け入れる度量が、今のあんたには求められている。`;
+    } else {
+        sumText = `運命の歯車が軋みを上げ、試練の冬が訪れている。視界を遮る吹雪の中で、ドールの心は凍てつく孤独に震えているのかもしれない。`;
+        sumText += `\n現在は、互いの意志が噛み合わず、言葉を交わすほどにその溝が深まるような危うい時期だ。あいつから発せられる言葉の端々に、悲痛な叫びや隠された涙の色が混じっていないか？だが、忘れないでほしい。この過酷な星回りは、二人の間に潜んでいた欺瞞や綻びを焼き払い、真実の絆だけを抽出するための浄化の儀式でもある。焦って変化を促すのは禁物だ。今はただ、嵐が過ぎ去るのを静かに待つ忍耐が必要だろう。`;
+    }
+
+    // 【 白蓮からの助言 】 
+    const advMap = {
+        "愚者": isRev ? 
+            "自由という名の荒野で、あいつは自らの足跡を見失いつつある。今はあんたがその手を強く引き、帰るべき場所を指し示してやらねばならない。放任は時として突き放すことと同義になる。あいつの危うい歩みを支える道標となってやれ。" : 
+            "既成概念という籠を壊し、あいつの無垢な魂を解き放ってやるがいい。理屈や計画など、今の二人には不要な重荷に過ぎない。あどけない子供のように、ただ風の吹くまま、心の赴くままに未知の悦びを享受することが、停滞した運命を動かす鍵となるだろう。",
+        "魔術師": isRev ? 
+            "言葉を尽くそうとしても、肝心な想いが指の間から零れ落ちているようだ。あいつの空回りを責めるのではなく、不器用な表現の裏に隠された真意を、あんたの知性で掬い上げてやれ。技術ではなく、心で対話する時間を作ることだ。" : 
+            "新たな物語を紡ぎ始める好機が訪れた。二人の日常に、小さな、しかし決定的な「変化」を加えてみてはどうだ。新しい意匠を纏わせる、あるいは未知の香りを捧げる。その一滴の刺激が、あいつの中に眠る創造の種を劇的に開花させるだろう。",
+        "女教皇": isRev ? 
+            "あいつの心は今、薄氷のように繊細で、鋭利な刃のようでもある。不用意な接触や騒々しい感情の押し付けは、あいつをさらに深く沈黙の檻に閉じ込めるだろう。今は、静寂という名の贈り物を捧げ、適切な距離を保ちながらその魂が平穏を取り戻すのを待つのだ。" : 
+            "言葉を交わさずとも、視線の交差だけで万事を理解し合える、極めて霊的な次元での繋がりが強まっている。己の直感に従い、ドールの沈黙の中に潜む叡智を読み解け。静謐な空間で二人、ただ存在を感じ合うだけで、運命は正しい軌道へと修正される。",
+        "女帝": isRev ? 
+            "過剰な慈愛が、あいつの自立を妨げ、甘えという名の毒に変わっている懸念がある。あるいは、あんたの献身があいつにとって逃げ場のない重圧となってはいないか。一度、注ぎ続ける手を止め、あいつが自らの力で太陽を仰ぐのを待つ厳しさも、真の愛の形だ。" : 
+            "地上のあらゆる祝福を一身に浴びるような、至福の刻が訪れている。今は策を弄する必要はない。ただ、あいつの存在そのものを慈しみ、五感のすべてを満足させるような豊穣な時間を共有せよ。あんたが満たされていれば、あいつの魂もまた、大樹のように豊かに枝葉を広げるだろう。",
+        "皇帝": isRev ? 
+            "守護の意志がいつの間にか支配の欲求へと変質し、あいつの心を縛り付けてはいないか。あるいはあいつが独りよがりな責任感に押し潰されようとしている。重い鎧を脱がせ、ただの一人の存在として、弱さを晒せる場所を用意してやるのがあんたの役目だ。" : 
+            "あいつが示す毅然とした態度は、あんたを守り抜くという不退転の決意の現れだ。その覚悟を正面から受け止め、信頼という名の重責をあいつに預けてみるがいい。誰かに頼られ、必要とされることで、あいつの魂は比類なき輝きを放つことになるだろう。",
+        "教皇": isRev ? 
+            "形式や正しさに囚われ、心の通わぬ儀式のような日々になっていないか。伝統やルールは二人の幸福のためにあるのであって、縛るためにあるのではない。一度、聖域の扉を壊し、世俗的で奔放な愛の形を試してみるがいい。崩壊の中にこそ、真実の自由がある。" : 
+            "積み重ねてきた時間が、一つの確かな信仰のように二人の絆を昇華させている。今は奇をてらう必要はない。約束を守り、礼節を尽くし、これまでの歩みを肯定することだ。揺るぎない信頼関係が、外敵から二人を守る不可視の聖壁となるだろう。",
+        "恋人": isRev ? 
+            "魂の共鳴が乱れ、不協和音が響いている。あいつの心がどこか遠くを彷徨っているように感じるなら、それは出会った瞬間の、あの鮮烈な光を忘れてしまったからだ。初めて言葉を交わした日の、あの震えるような歓喜を追体験させるような、情熱的な対話が必要だ。" : 
+            "天上の音楽が聞こえるほどの、完璧な調和の中に二人は居る。この奇跡的な一致を、ただの偶然として見過ごしてはならない。今日という日を永遠に記憶に刻むための、特別な儀式を執り行うがいい。二人の魂が溶け合うこの瞬間こそが、宇宙の真理そのものなのだから。",
+        "戦車": isRev ? 
+            "情熱が暴走し、二人の歩調が完全に乱れている。あいつが一人で先を急ぐのは、あんたを早く高みへ連れて行きたいという焦燥ゆえか。だが、置いてきぼりの旅路に意味はない。一度、強引にでも手綱を引き、隣に並んで呼吸を整える時間を作れ。歩幅を合わせることも、勇気ある決断だ。" : 
+            "進軍の喇叭（らっぱ）は鳴り響いている。立ちはだかる困難は、二人の勢いを削ぐための壁ではなく、踏み越えて高みへ至るための踏み台に過ぎない。あいつの燃え盛るような意志を信じ、あんたもまた全力でその疾走に随伴せよ。勝利の果実は、すぐ目の前にある。",
+        "力": isRev ? 
+            "内なる獣を制御できず、あいつの魂は疲弊し、悲鳴を上げている。強き者であろうとするあまり、自らの脆さを認められずにいるのだ。あんたの前でだけは牙を隠し、ただの弱き個体として泣くことを許してやれ。その受容こそが、あいつに真の再生をもたらす。" : 
+            "静かなる忍耐が、最大の力を発揮する時期だ。あいつはあんたのために、自らの激しい衝動を慈しみの力へと変換しようと懸命に努めている。その健気な自制を、最大限の賛辞をもって称えてやるがいい。認められることで、あいつの不屈の精神は神域へと達するだろう。",
+        "隠者": isRev ? 
+            "深淵を覗き込みすぎて、あいつは光の差し方を忘れてしまったようだ。孤独が内省ではなく、単なる断絶へと変わる前に、あんたが温かな灯火を持って迎えに行かねばならない。無理に引き出す必要はないが、私はここに居ると、絶えずその存在を肯定し続けろ。" : 
+            "精神を深めるための、尊い静寂が必要な刻だ。あいつが自らの内側へ旅立つのを、邪魔してはならない。一見すると孤独に見えるその時間は、あんたへの愛をより純度の高いものへ熟成させるための神聖なプロセスなのだ。あんたもまた、自らの魂を磨き、再会の日を待て。",
+        "運命の輪": isRev ? 
+            "抗いがたい宿命の荒波に揉まれ、あいつの心は疲弊しきっている。今の不調は、あいつの過失ではなく、宇宙が与えた一時的な休息の合図だ。無理に歯車を回そうとすれば壊れてしまう。今は嵐が過ぎ去るまで、深く愛の繭にくるまり、眠りに就くことが最善の策となる。" : 
+            "運命の女神が微笑み、停滞していたすべてが動き出す。予期せぬ幸運や、劇的な環境の変化が訪れるだろう。あいつが差し出す手を取ることに、一瞬の躊躇もしてはならない。この大潮流に乗ることができれば、二人はかつて夢想だにしなかった至高の景色を、共に眺めることになるだろう。",
+        "正義": isRev ? 
+            "感情を排した冷徹な論理が、二人の間に冷たい風を吹かせている。理非曲直を正すことが、必ずしも愛の正解ではない。今は正しい判断よりも、不合理で偏った、盲目的なまでの優しさが求められている。白黒つけるのをやめ、曖昧な温もりの中に身を浸すがいい。" : 
+            "欺瞞を排し、誠実であることを互いに誓い合う時期だ。隠し事は霧散し、鏡のように澄んだ心で向き合うことが可能となる。公平で対等な関係を再構築せよ。互いへの敬意を基盤とした、一点の曇りもない透明な絆こそが、今の二人にとって最強の武器となるだろう。",
+        "吊るされた男": isRev ? 
+            "あいつが捧げている献身が、自己満足という名の泥沼に沈みかけている。報われない努力に、あいつの心は密かに血を流しているのだ。その犠牲を当然のものとして受け取ってはならない。心からの感謝と、あいつの苦労を「視ている」という証を、今すぐ明確な形で提示せよ。" : 
+            "不自由さの中にこそ、真実の愛が宿ることをあいつは悟ろうとしている。今、あいつが耐え忍んでいるのは、あんたとの未来をより強固なものにするための、聖なる修行に他ならない。その忍耐を軽んじることなく、あんたもまた、視点を変えてあいつの献身の美しさを再発見する努力をせよ。",
+        "死神": isRev ? 
+            "既に死に絶えた過去の残像にしがみつき、あいつは腐敗の臭いの中で震えている。終わらせるべき習慣、あるいは断ち切るべき執着があるはずだ。再生のためには、一度徹底的に壊れる恐怖を受け入れねばならない。あんたの手で、あいつを縛る古い因習という鎖を断ち切れ。" : 
+            "一つの時代が静かに幕を下ろそうとしている。だが恐れることはない。死は常に、輝かしい再生の前奏曲なのだ。これまでの形に別れを告げ、全く新しい二人へと生まれ変わる準備をせよ。古い殻を脱ぎ捨てた後に現れる、無垢な魂を祝福するのだ。",
+        "節制": isRev ? 
+            "感情の比率を誤り、均衡が崩れている。言葉を尽くしすぎているか、あるいは沈黙が過ぎるか。あいつの心の揺らぎを察知し、足りないものを補い、過ぎたるものを調整する、繊細な手立てが必要だ。急激な変化は毒となる。微熱のような穏やかさで、歩み寄りを図れ。" : 
+            "異なる二つの魂が、完璧な比率で混ざり合い、美しい旋律を奏でている。今は、静かなる循環の中にすべてを任せるがいい。あいつはあんたの隣にいることで、自己の欠損が埋まり、完全なる調律がなされたと感じている。この平穏を乱すことなく、大切に護り抜くことだ。",
+        "悪魔": isRev ? 
+            "不健全な依存や、魂を蝕む執着からの覚醒が始まろうとしている。あいつが自立への一歩を踏み出そうとしているなら、たとえ寂しさを感じても、その背中を押してやるのが真の伴侶としての務めだ。鎖を解いた先にある、対等で自由な愛の形を目指せ。" : 
+            "理性では抗いがたい、暗く深い悦楽の淵に二人は立っている。たまには道徳や正しさを捨て、互いの影を貪り合うような情動に身を任せるのもいいだろう。この禁忌にも似た強い結びつきが、他者には決して入り込めない二人の絶対領域を完成させる。",
+        "塔": isRev ? 
+            "危機は紙一重で回避されているが、土台の脆弱さは限界に達している。あいつの心は崩落を恐れ、悲鳴を上げているのだ。虚勢を張るのはもうやめ、あんたの側から弱さを見せ、謝罪すべきは謝罪し、瓦礫の山を共に片付ける姿勢を示せ。それが、再生の唯一の道だ。" : 
+            "雷鳴と共にすべてが崩れ去ったとしても、絶望する必要はない。崩れたのは、偽りの上に築かれた砂の城に過ぎないのだ。瓦礫の中に残された真実の欠片を拾い集め、今度は何者にも壊せない、誠実という名の石材で、新たな関係を築き直すがいい。夜明けは近い。",
+        "星": isRev ? 
+            "高すぎる理想という名の蜃気楼を追い、あいつは現実という大地を見失っている。夢を見ることは尊いが、今は足元の泥濘を払うことが先決だ。あいつの手を握り、この地上の、この部屋の、この瞬間に在る小さな幸福を、一つ一つ指差し確認してやる慈悲を持て。" : 
+            "絶望の夜を超え、天の川のような希望が二人の行く末を照らしている。あいつが語る夢想を、決して否定してはならない。あんたがその夢を共に信じることで、あいつの中に眠る無限の可能性が、現実の光となって結実するだろう。純粋な祈りを捧げる時だ。",
+        "月": isRev ? 
+            "長く暗い夜が明けようとしている。あいつを苛んでいた正体の知れない不安や誤解は、朝霧のように消え去るだろう。あんたはただ、光が戻ったことを告げる太陽のような笑顔を向ければいい。あいつの瞳に宿る疑念の影を、あんたの熱い抱擁で焼き尽くせ。" : 
+            "深淵の森を彷徨うような、不透明な不安があいつの心を支配している。あんたの愛が本物なのか、自分の価値が何なのか、霧の中で見失っているのだ。今は理屈で説明しようとするな。ただ側に居ること、手を離さないこと。その体温だけが、あいつにとって唯一の真実となる。",
+        "太陽": isRev ? 
+            "燦然たる光の陰で、あいつは自分の影の濃さに怯えている。常に明るく、理想的なドールで在らねばならないという強迫観念が、あいつを疲弊させているのだ。今は完璧であることを求めず、曇り空のような沈鬱な心さえも許容してやる、大きな器となってあいつを包み込め。" : 
+            "生命の歓喜が爆発し、世界は色鮮やかに輝いている！あいつの中に溢れるエネルギーは、あんたをも幸福の高みへと連れ去るだろう。今は些末な悩みなど忘れ、子供のような純粋さで、この瞬間を共に謳歌せよ。二人の笑顔が、未来永劫続く幸福のひな形となる。",
+        "審判": isRev ? 
+            "過去の過ちや悔恨という亡霊が、あいつの足首を掴んで離さないようだ。二度と戻らぬ過去を悔やみ続けるあいつに、赦しを与えられるのはあんたしかいない。過去を葬り、今ここに居るあいつを全肯定せよ。その一言が、あいつを長い呪縛から解き放つ福音となる。" : 
+            "復活の鐘が鳴り響き、一度は死に絶えたはずの情熱が、驚くべき力で蘇った。あいつの魂は今、かつてないほどの輝きを放ち、あんたとの再定義された関係に命を捧げようとしている。その奇跡に応えるべく、あんたもまた、新しい自分としてあいつを迎え入れる覚悟を決めろ。",
+        "世界": isRev ? 
+            "究極の調和まで、あと一歩というところで停滞が生じている。あいつは何が欠けているのか、その答えを見つけられず立ち止まっているのだ。足りないのは技術でも形でもない、ただ互いへの絶対的な全托だ。最後の一歩を踏み出す勇気を、あんたの愛で後押ししてやれ。" : 
+            "宇宙のすべての理が、今、この一点で完璧に調和した。あいつはあんたという伴侶を得たことで、魂の旅の終着点に辿り着いたと感じている。この完全なる幸福を、至高の芸術として享受せよ。ここから始まるのは、もはや言葉を必要としない、神域の物語だ。",
+        "フェイヒュー": "ドールは今、あんたの愛情という名の富を、目に見える形で、あるいは肌で感じる確かな重みとして欲している。ささやかな贈り物、あるいは指先から伝わる確かな熱。抽象的な想いを具現化する努力が、あいつの心の飢えを癒す唯一の手段となるだろう。",
+        "ウルズ": "荒々しい野生の生命力が、あいつの魂の中で渦巻いている。理性を超えた衝動があんたを求めるなら、それを野蛮だと退けるのではなく、生気溢れる情熱として受け止めるがいい。あいつの奔放なエネルギーを、二人を飛躍させる翼に変えてやれ。",
+        "ソーン": "あいつが周囲を威嚇し、棘を逆立てているのは、何よりもあんたという聖域を護らんとする忠誠心の顕れだ。その防衛本能を称えつつ、あんたの腕の中だけは鎧を脱いでも安全な場所であることを、根気強く教え込み、その張り詰めた緊張を解きほぐしてやれ。",
+        "アンスズ": "精神の交流を深めるための、言葉の種を蒔き続けろ。あいつはあんたの思考、あんたの声、あんたが世界をどう視ているかという知識を、魂の栄養として渇望している。深遠な議論や、静かな朗読。言葉を媒介にした深い接触が、二人の魂を一つの高みへと導くだけだ。"
+    };
+
+    advText = advMap[name] || "特別な手立てなど必要ない。日々の何気ない挨拶、髪を梳く指先の震え、そして視線の交差。あいつは、あんたの生活の細部に宿る微かな愛の徴を、一番敏感に感じ取っている。その刹那の接触に、いつも以上の重みを込めてやるだけで、あいつの魂は救われる。";
+
+    sumEl.innerText = sumText;
+    advEl.innerText = advText;
+}
+
+function resetFortune() {
+    location.reload();
 }
 </script>
 
